@@ -13,6 +13,12 @@ window.onload = function () {
     context2D.lineTo(10, 50);
     context2D.stroke();*/
     //context2D.fillText("aaa", 10, 10, 50);
+    /*var image = document.createElement("img");
+    image.src = "girl.jpg";
+    context2D.drawImage(image, 100, 100);
+    image.onload = () => {
+        context2D.drawImage(image, 100, 100);
+    }*/
     var stage = new DisplayObjectContainer();
     setInterval(function () {
         context2D.clearRect(0, 0, canvas.width, canvas.height);
@@ -22,20 +28,41 @@ window.onload = function () {
     textField.text = "aaa";
     textField.x = 10;
     textField.y = 10;
-    textField.color = "#ff0000";
+    textField.textColor = "#ff0000";
+    var imageBitmap = new Bitmap();
+    imageBitmap.name = "girl.jpg";
+    imageBitmap.x = 50;
+    imageBitmap.y = 50;
+    //imageBitmap.width = 100;
+    //imageBitmap.height = 100;
     stage.addChild(textField);
+    stage.addChild(imageBitmap);
     //stage.addChild(shape);
 };
 var Bitmap = (function () {
     function Bitmap() {
         this.x = 0;
         this.y = 0;
+        this.width = -1;
+        this.height = -1;
         this.name = "";
     }
     Bitmap.prototype.draw = function (context2D) {
-        var image = new Image();
+        var _this = this;
+        var image = document.createElement("img");
         image.src = this.name;
-        context2D.drawImage(image, this.x, this.y);
+        if (this.width == -1 && this.height == -1) {
+            context2D.drawImage(image, this.x, this.y);
+            image.onload = function () {
+                context2D.drawImage(image, _this.x, _this.y);
+            };
+        }
+        else {
+            context2D.drawImage(image, this.x, this.y, this.width, this.height);
+            image.onload = function () {
+                context2D.drawImage(image, _this.x, _this.y, _this.width, _this.height);
+            };
+        }
     };
     return Bitmap;
 }());
@@ -44,15 +71,15 @@ var TextField = (function () {
         this.x = 0;
         this.y = 0;
         this.text = "";
-        this.color = "#000000";
+        this.textColor = "#000000";
     }
     TextField.prototype.draw = function (context2D) {
         this.toggleCase();
-        context2D.fillStyle = this.color;
+        context2D.fillStyle = this.textColor;
         context2D.fillText(this.text, this.x, this.y, 100);
     };
     TextField.prototype.toggleCase = function () {
-        this.color.toLocaleUpperCase();
+        this.textColor.toLocaleUpperCase();
     };
     return TextField;
 }());

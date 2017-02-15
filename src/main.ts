@@ -10,6 +10,14 @@ window.onload = () => {
 
     //context2D.fillText("aaa", 10, 10, 50);
 
+    /*var image = document.createElement("img");
+    image.src = "girl.jpg";
+    context2D.drawImage(image, 100, 100);
+    image.onload = () => {
+        context2D.drawImage(image, 100, 100);
+    }*/
+
+
     var stage: DisplayObjectContainer = new DisplayObjectContainer();
     setInterval(() => {
         context2D.clearRect(0, 0, canvas.width, canvas.height);
@@ -20,10 +28,18 @@ window.onload = () => {
     textField.text = "aaa";
     textField.x = 10;
     textField.y = 10;
-    textField.color = "#ff0000"
-    stage.addChild(textField);
-    //stage.addChild(shape);
+    textField.textColor = "#ff0000"
 
+    var imageBitmap: Bitmap = new Bitmap();
+    imageBitmap.name = "girl.jpg"
+    imageBitmap.x = 50;
+    imageBitmap.y = 50;
+    //imageBitmap.width = 100;
+    //imageBitmap.height = 100;
+
+    stage.addChild(textField);
+    stage.addChild(imageBitmap);
+    //stage.addChild(shape);
 
 };
 
@@ -37,11 +53,23 @@ interface Drawable {
 class Bitmap implements Drawable {
     x: number = 0;
     y: number = 0;
+    width: number = -1;
+    height: number = -1;
     name: string = "";
     draw(context2D: CanvasRenderingContext2D) {
-        var image = new Image();
+        var image = document.createElement("img");
         image.src = this.name;
-        context2D.drawImage(image, this.x, this.y);
+        if (this.width == -1 && this.height == -1) {
+            context2D.drawImage(image, this.x, this.y);
+            image.onload = () => {
+                context2D.drawImage(image, this.x, this.y);
+            }
+        } else {
+            context2D.drawImage(image, this.x, this.y, this.width, this.height);
+            image.onload = () => {
+                context2D.drawImage(image, this.x, this.y, this.width, this.height);
+            }
+        }
     }
 }
 
@@ -49,15 +77,15 @@ class TextField implements Drawable {
     x: number = 0;
     y: number = 0;
     text: string = "";
-    color: string = "#000000"
+    textColor: string = "#000000"
     draw(context2D: CanvasRenderingContext2D) {
         this.toggleCase();
-        context2D.fillStyle = this.color;
+        context2D.fillStyle = this.textColor;
         context2D.fillText(this.text, this.x, this.y, 100);
     }
 
     private toggleCase() {
-        this.color.toLocaleUpperCase();
+        this.textColor.toLocaleUpperCase();
     }
 }
 
