@@ -18,13 +18,13 @@ window.onload = () => {
     }*/
 
 
-    var stage: DisplayObjectContainer = new DisplayObjectContainer();
+    var stage: DisplayObjectContainer = new DisplayObjectContainer(context2D);
     setInterval(() => {
         context2D.clearRect(0, 0, canvas.width, canvas.height);
-        stage.draw(context2D);
+        stage.draw();
     }, 30);
 
-    var textField: TextField = new TextField();
+    var textField: TextField = new TextField();//子类都不能有参数，所以不能直接继承DisplayObject类
     textField.text = "aaa";
     textField.x = 10;
     textField.y = 10;
@@ -32,14 +32,15 @@ window.onload = () => {
 
     var imageBitmap: Bitmap = new Bitmap();
     imageBitmap.name = "girl.jpg"
-    imageBitmap.x = 50;
-    imageBitmap.y = 50;
     //imageBitmap.width = 100;
     //imageBitmap.height = 100;
 
-    stage.addChild(textField);
+    var rect: Shape = new Shape();
+    rect.drawRect(10, 10, 100, 100);
+
     stage.addChild(imageBitmap);
-    //stage.addChild(shape);
+    stage.addChild(textField);
+    stage.addChild(rect);
 
 };
 
@@ -47,67 +48,75 @@ interface Drawable {
     draw(context2D: CanvasRenderingContext2D);
 }
 
-
-
-
-class Bitmap implements Drawable {
+class DisplayObject implements Drawable {
     x: number = 0;
     y: number = 0;
-    width: number = -1;
-    height: number = -1;
-    name: string = "";
+    context2D: CanvasRenderingContext2D;
+    constructor(context2D: CanvasRenderingContext2D) {
+        this.context2D = context2D;
+    }
     draw(context2D: CanvasRenderingContext2D) {
-        var image = document.createElement("img");
-        image.src = this.name;
-        if (this.width == -1 && this.height == -1) {
-            context2D.drawImage(image, this.x, this.y);
-            image.onload = () => {
-                context2D.drawImage(image, this.x, this.y);
-            }
-        } else {
-            context2D.drawImage(image, this.x, this.y, this.width, this.height);
-            image.onload = () => {
-                context2D.drawImage(image, this.x, this.y, this.width, this.height);
-            }
-        }
     }
 }
 
-class TextField implements Drawable {
-    x: number = 0;
-    y: number = 0;
-    text: string = "";
-    textColor: string = "#000000"
-    draw(context2D: CanvasRenderingContext2D) {
-        this.toggleCase();
-        context2D.fillStyle = this.textColor;
-        context2D.fillText(this.text, this.x, this.y, 100);
-    }
-
-    private toggleCase() {
-        this.textColor.toLocaleUpperCase();
-    }
-}
-
-class DisplayObjectContainer implements Drawable {
+class DisplayObjectContainer extends DisplayObject {
     childs: Drawable[] = [];
-    draw(context2D: CanvasRenderingContext2D) {
+    constructor(context2D: CanvasRenderingContext2D) {
+        super(context2D);
+    }
+    draw() {
         for (let drawable of this.childs) {
-            drawable.draw(context2D);
+            drawable.draw(this.context2D);
         }
     }
     addChild(child: Drawable) {
         this.childs.push(child);
     }
-
 }
 
-class Shape implements Drawable {
-    draw(context2D: CanvasRenderingContext2D) {
-        context2D.fill();
+class Bitmap extends DisplayObject {
+    width: number = -1;
+    height: number = -1;
+    name: string = "";
+    draw() {
+        var image = document.createElement("img");
+        image.src = this.name;
+        if (this.width == -1 && this.height == -1) {
+            this.context2D.drawImage(image, this.x, this.y);
+            image.onload = () => {
+                this.context2D.drawImage(image, this.x, this.y);
+            }
+        } else {
+            this.context2D.drawImage(image, this.x, this.y, this.width, this.height);
+            image.onload = () => {
+                this.context2D.drawImage(image, this.x, this.y, this.width, this.height);
+            }
+        }
     }
 }
 
-class Rectangle extends Shape {
 
+class TextField extends DisplayObject {
+    text: string = "";
+    textColor: string = "#000000"
+    draw() {
+        this.toggleCase();
+        this.context2D.fillStyle = this.textColor;
+        this.context2D.fillText(this.text, this.x, this.y, 100);
+    }
+    private toggleCase() {
+        this.textColor.toLocaleUpperCase();
+    }
+}
+
+
+class Shape extends DisplayObject {
+    width: number = 100;
+    height: number = 100;
+    draw() {
+    }
+
+    drawRect(x: number, y: number, width: number, height: number) {
+        this.context2D.fillRect(x, y, width, height);
+    }
 }
