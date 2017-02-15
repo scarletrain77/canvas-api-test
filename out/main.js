@@ -12,38 +12,39 @@ window.onload = function () {
     context2D.lineTo(150, 50);
     context2D.lineTo(10, 50);
     context2D.stroke();*/
-    //context2D.fillText("aaa", 10, 10, 50);
-    /*var image = document.createElement("img");
-    image.src = "girl.jpg";
-    context2D.drawImage(image, 100, 100);
-    image.onload = () => {
-        context2D.drawImage(image, 100, 100);
-    }*/
-    var stage = new DisplayObjectContainer(context2D);
+    var stage = new DisplayObjectContainer();
+    //stage.setContext(context2D);
     setInterval(function () {
         context2D.clearRect(0, 0, canvas.width, canvas.height);
-        stage.draw();
+        stage.draw(context2D);
     }, 30);
-    var textField = new TextField(); //子类都不能有参数，所以不能直接继承DisplayObject类
+    var textField = new TextField();
     textField.text = "aaa";
     textField.x = 10;
     textField.y = 10;
     textField.textColor = "#ff0000";
     var imageBitmap = new Bitmap();
     imageBitmap.name = "girl.jpg";
-    //imageBitmap.width = 100;
-    //imageBitmap.height = 100;
+    imageBitmap.x = 10;
+    imageBitmap.y = 10;
+    imageBitmap.width = 100;
+    imageBitmap.height = 100;
     var rect = new Shape();
-    rect.drawRect(10, 10, 100, 100);
+    rect.drawRect(10, 200, 100, 100);
     stage.addChild(imageBitmap);
     stage.addChild(textField);
     stage.addChild(rect);
+    stage.draw(context2D);
 };
+//子类都不能有参数，所以DisplayObject的构造函数不能有参数
 var DisplayObject = (function () {
-    function DisplayObject(context2D) {
+    //只有一个就行
+    //context2D: CanvasRenderingContext2D;
+    //public static context2D: CanvasRenderingContext2D;
+    function DisplayObject() {
         this.x = 0;
         this.y = 0;
-        this.context2D = context2D;
+        //DisplayObject.context2D = new CanvasRenderingContext2D();
     }
     DisplayObject.prototype.draw = function (context2D) {
     };
@@ -51,14 +52,15 @@ var DisplayObject = (function () {
 }());
 var DisplayObjectContainer = (function (_super) {
     __extends(DisplayObjectContainer, _super);
-    function DisplayObjectContainer(context2D) {
-        _super.call(this, context2D);
+    function DisplayObjectContainer() {
+        _super.apply(this, arguments);
         this.childs = [];
     }
-    DisplayObjectContainer.prototype.draw = function () {
+    DisplayObjectContainer.prototype.draw = function (context2D) {
         for (var _i = 0, _a = this.childs; _i < _a.length; _i++) {
             var drawable = _a[_i];
-            drawable.draw(this.context2D);
+            //drawable.draw(DisplayObject.context2D);
+            drawable.draw(context2D);
         }
     };
     DisplayObjectContainer.prototype.addChild = function (child) {
@@ -74,20 +76,20 @@ var Bitmap = (function (_super) {
         this.height = -1;
         this.name = "";
     }
-    Bitmap.prototype.draw = function () {
+    Bitmap.prototype.draw = function (context2D) {
         var _this = this;
         var image = document.createElement("img");
         image.src = this.name;
         if (this.width == -1 && this.height == -1) {
-            this.context2D.drawImage(image, this.x, this.y);
+            context2D.drawImage(image, this.x, this.y);
             image.onload = function () {
-                _this.context2D.drawImage(image, _this.x, _this.y);
+                context2D.drawImage(image, _this.x, _this.y);
             };
         }
         else {
-            this.context2D.drawImage(image, this.x, this.y, this.width, this.height);
+            context2D.drawImage(image, this.x, this.y, this.width, this.height);
             image.onload = function () {
-                _this.context2D.drawImage(image, _this.x, _this.y, _this.width, _this.height);
+                context2D.drawImage(image, _this.x, _this.y, _this.width, _this.height);
             };
         }
     };
@@ -100,10 +102,10 @@ var TextField = (function (_super) {
         this.text = "";
         this.textColor = "#000000";
     }
-    TextField.prototype.draw = function () {
+    TextField.prototype.draw = function (context2D) {
         this.toggleCase();
-        this.context2D.fillStyle = this.textColor;
-        this.context2D.fillText(this.text, this.x, this.y, 100);
+        context2D.fillStyle = this.textColor;
+        context2D.fillText(this.text, this.x, this.y, 100);
     };
     TextField.prototype.toggleCase = function () {
         this.textColor.toLocaleUpperCase();
@@ -116,11 +118,21 @@ var Shape = (function (_super) {
         _super.apply(this, arguments);
         this.width = 100;
         this.height = 100;
+        this.type = "";
+        this.color = "#0000000";
     }
-    Shape.prototype.draw = function () {
-    };
     Shape.prototype.drawRect = function (x, y, width, height) {
-        this.context2D.fillRect(x, y, width, height);
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.type = "Rectangle";
+    };
+    Shape.prototype.draw = function (context2D) {
+        context2D.fillStyle = this.color;
+        if (this.type == "Rectangle") {
+            context2D.fillRect(this.x, this.y, this.width, this.height);
+        }
     };
     return Shape;
 }(DisplayObject));
