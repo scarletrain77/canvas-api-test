@@ -6,92 +6,132 @@ var __extends = (this && this.__extends) || function (d, b) {
 window.onload = function () {
     var canvas = document.getElementById("myCanvas");
     var context2D = canvas.getContext("2d");
-    //context2D.fillStyle = "#FF0000"
-    //
-    /*context2D.moveTo(10, 10);
-    context2D.lineTo(150, 50);
-    context2D.lineTo(10, 50);
-    context2D.stroke();*/
     var stage = new DisplayObjectContainer();
-    //stage.setContext(context2D);
-    setInterval(function () {
-        context2D.clearRect(0, 0, canvas.width, canvas.height);
-        stage.draw(context2D);
-    }, 30);
     var textField = new TextField();
     textField.text = "aaa";
     textField.x = 10;
-    textField.y = 10;
+    textField.y = 20;
     textField.textColor = "#ff0000";
+    textField.alpha = 1;
     var imageBitmap = new Bitmap();
     imageBitmap.name = "girl.jpg";
     imageBitmap.x = 10;
     imageBitmap.y = 10;
-    imageBitmap.width = 100;
-    imageBitmap.height = 100;
-    var rect = new Shape();
-    rect.drawRect(10, 200, 100, 100);
+    imageBitmap.alpha = 1;
+    //imageBitmap.moveTo(100, 100);
+    //单位矩阵
+    //context2D.setTransform(1, 0, 0, 1, 1, 1);
+    //a, b,c, d, tx, ty
+    //a:x坐标放大倍数，d:y坐标放大倍数, tx向右平移， ty向下平移
+    /*var m = math.loadIdentityMatrix();
+    var m1 = new math.Matrix(1, 0, 0, 1, 1, 100);
+    var m2 = math.matrixAppendMatrix(m , m1);
+    m1.displayObjectSetTransform(context2D);*/
+    //context2D.setTransform(1, 0, 0, 1, 1, 1)
     stage.addChild(imageBitmap);
     stage.addChild(textField);
-    stage.addChild(rect);
+    stage.alpha = 0.5;
     stage.draw(context2D);
+    setInterval(function () {
+        context2D.clearRect(0, 0, canvas.width, canvas.height);
+        textField.x++;
+        stage.draw(context2D);
+    }, 30);
 };
-//子类都不能有参数，所以DisplayObject的构造函数不能有参数
 var DisplayObject = (function () {
-    //只有一个就行
-    //context2D: CanvasRenderingContext2D;
-    //public static context2D: CanvasRenderingContext2D;
     function DisplayObject() {
         this.x = 0;
         this.y = 0;
-        //DisplayObject.context2D = new CanvasRenderingContext2D();
+        this.scaleX = 1;
+        this.scaleY = 1;
+        this.rotation = 0;
+        this.alpha = 1;
+        this.globalAlpha = 1;
+        this.globalMatrix = math.loadIdentityMatrix();
+        this.localMatrix = math.loadIdentityMatrix();
+        this.localMatrix.updateFromDisplayObject(this.x, this.y, this.scaleX, this.scaleY, this.rotation);
+        if (this.parent) {
+            this.globalMatrix = math.matrixAppendMatrix(this.localMatrix, this.parent.globalMatrix);
+        }
+        else {
+            this.globalMatrix = this.localMatrix;
+        }
     }
     DisplayObject.prototype.draw = function (context2D) {
+        //this.localMatrix.updateFromDisplayObject(this.x, this.y, this.scaleX, this.scaleY, this.rotation);
+        if (this.parent) {
+            this.globalAlpha = this.parent.globalAlpha * this.alpha;
+        }
+        else {
+            this.globalAlpha = this.alpha;
+        }
+        context2D.globalAlpha = this.globalAlpha;
+        this.globalMatrix.displayObjectSetTransform(context2D);
+        this.render(context2D);
+    };
+    DisplayObject.prototype.render = function (context2D) {
     };
     return DisplayObject;
 }());
 var DisplayObjectContainer = (function (_super) {
     __extends(DisplayObjectContainer, _super);
     function DisplayObjectContainer() {
-        _super.apply(this, arguments);
+        _super.call(this);
         this.childs = [];
     }
-    DisplayObjectContainer.prototype.draw = function (context2D) {
+    DisplayObjectContainer.prototype.render = function (context2D) {
         for (var _i = 0, _a = this.childs; _i < _a.length; _i++) {
             var drawable = _a[_i];
-            //drawable.draw(DisplayObject.context2D);
             drawable.draw(context2D);
         }
     };
     DisplayObjectContainer.prototype.addChild = function (child) {
-        this.childs.push(child);
+        if (this.childs.indexOf(child) == -1) {
+            child.parent = this;
+            this.childs.push(child);
+        }
+    };
+    //拷贝一个数组
+    DisplayObjectContainer.prototype.removeChild = function (child) {
+        for (var _i = 0, _a = this.childs; _i < _a.length; _i++) {
+            var element = _a[_i];
+            if (element == child) {
+                var index = this.childs.indexOf(child);
+                this.childs.splice(index);
+                return;
+            }
+        }
     };
     return DisplayObjectContainer;
 }(DisplayObject));
 var Bitmap = (function (_super) {
     __extends(Bitmap, _super);
     function Bitmap() {
-        _super.apply(this, arguments);
+        _super.call(this);
         this.width = -1;
         this.height = -1;
         this.name = "";
+        this.image = null;
+        this.isLoaded = false;
+        this.image = document.createElement("img");
     }
-    Bitmap.prototype.draw = function (context2D) {
+    Bitmap.prototype.render = function (context2D) {
         var _this = this;
-        var image = document.createElement("img");
-        image.src = this.name;
-        if (this.width == -1 && this.height == -1) {
-            context2D.drawImage(image, this.x, this.y);
-            image.onload = function () {
-                context2D.drawImage(image, _this.x, _this.y);
-            };
+        context2D.globalAlpha = this.globalAlpha;
+        if (this.isLoaded) {
+            context2D.drawImage(this.image, this.x, this.y);
         }
         else {
-            context2D.drawImage(image, this.x, this.y, this.width, this.height);
-            image.onload = function () {
-                context2D.drawImage(image, _this.x, _this.y, _this.width, _this.height);
+            this.image.src = this.name;
+            this.image.onload = function () {
+                context2D.drawImage(_this.image, _this.x, _this.y, _this.width, _this.height);
+                _this.isLoaded = true;
             };
         }
+    };
+    Bitmap.prototype.moveTo = function (x, y) {
+        var tempMatrix = new math.Matrix(1, 0, 0, 1, x - this.x, y - this.y);
+        this.globalMatrix = math.matrixAppendMatrix(this.globalMatrix, tempMatrix);
     };
     return Bitmap;
 }(DisplayObject));
@@ -101,39 +141,15 @@ var TextField = (function (_super) {
         _super.apply(this, arguments);
         this.text = "";
         this.textColor = "#000000";
+        this.textSize = 12;
+        this.textFont = "Calibri";
     }
-    TextField.prototype.draw = function (context2D) {
-        this.toggleCase();
-        context2D.fillStyle = this.textColor;
-        context2D.fillText(this.text, this.x, this.y, 100);
-    };
-    TextField.prototype.toggleCase = function () {
-        this.textColor.toLocaleUpperCase();
+    TextField.prototype.render = function (context2D) {
+        context2D.fillStyle = this.textColor.toLocaleUpperCase();
+        context2D.globalAlpha = this.globalAlpha;
+        context2D.font = this.textSize.toString() + "pt " + this.textFont;
+        context2D.fillText(this.text, this.x, this.y);
     };
     return TextField;
-}(DisplayObject));
-var Shape = (function (_super) {
-    __extends(Shape, _super);
-    function Shape() {
-        _super.apply(this, arguments);
-        this.width = 100;
-        this.height = 100;
-        this.type = "";
-        this.color = "#0000000";
-    }
-    Shape.prototype.drawRect = function (x, y, width, height) {
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
-        this.type = "Rectangle";
-    };
-    Shape.prototype.draw = function (context2D) {
-        context2D.fillStyle = this.color;
-        if (this.type == "Rectangle") {
-            context2D.fillRect(this.x, this.y, this.width, this.height);
-        }
-    };
-    return Shape;
 }(DisplayObject));
 //# sourceMappingURL=main.js.map
