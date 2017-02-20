@@ -15,9 +15,10 @@ window.onload = function () {
     textField.alpha = 1;
     var imageBitmap = new Bitmap();
     imageBitmap.name = "girl.jpg";
-    imageBitmap.x = 10;
-    imageBitmap.y = 10;
+    //imageBitmap.x = 10;
+    //imageBitmap.y = 10;
     imageBitmap.alpha = 1;
+    imageBitmap.scaleX = 4;
     //imageBitmap.moveTo(100, 100);
     //单位矩阵
     //context2D.setTransform(1, 0, 0, 1, 1, 1);
@@ -50,20 +51,21 @@ var DisplayObject = (function () {
         this.globalMatrix = math.loadIdentityMatrix();
         this.localMatrix = math.loadIdentityMatrix();
         this.localMatrix.updateFromDisplayObject(this.x, this.y, this.scaleX, this.scaleY, this.rotation);
-        if (this.parent) {
+        /*if (this.parent) {
             this.globalMatrix = math.matrixAppendMatrix(this.localMatrix, this.parent.globalMatrix);
-        }
-        else {
+        } else {
             this.globalMatrix = this.localMatrix;
-        }
+        }*/
     }
     DisplayObject.prototype.draw = function (context2D) {
         //this.localMatrix.updateFromDisplayObject(this.x, this.y, this.scaleX, this.scaleY, this.rotation);
         if (this.parent) {
             this.globalAlpha = this.parent.globalAlpha * this.alpha;
+            this.globalMatrix = math.matrixAppendMatrix(this.localMatrix, this.parent.globalMatrix);
         }
         else {
             this.globalAlpha = this.alpha;
+            this.globalMatrix = this.localMatrix;
         }
         context2D.globalAlpha = this.globalAlpha;
         this.globalMatrix.displayObjectSetTransform(context2D);
@@ -71,6 +73,11 @@ var DisplayObject = (function () {
     };
     DisplayObject.prototype.render = function (context2D) {
     };
+    DisplayObject.prototype.moveTo = function (x, y) {
+        var tempMatrix = new math.Matrix(1, 0, 0, 1, x - this.x, y - this.y);
+        this.globalMatrix = math.matrixAppendMatrix(this.globalMatrix, tempMatrix);
+    };
+    DisplayObject.prototype.rotate = function () { };
     return DisplayObject;
 }());
 var DisplayObjectContainer = (function (_super) {
@@ -128,10 +135,6 @@ var Bitmap = (function (_super) {
                 _this.isLoaded = true;
             };
         }
-    };
-    Bitmap.prototype.moveTo = function (x, y) {
-        var tempMatrix = new math.Matrix(1, 0, 0, 1, x - this.x, y - this.y);
-        this.globalMatrix = math.matrixAppendMatrix(this.globalMatrix, tempMatrix);
     };
     return Bitmap;
 }(DisplayObject));

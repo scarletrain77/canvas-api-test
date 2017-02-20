@@ -14,9 +14,10 @@ window.onload = () => {
 
     var imageBitmap: Bitmap = new Bitmap();
     imageBitmap.name = "girl.jpg"
-    imageBitmap.x = 10;
-    imageBitmap.y = 10;
+    //imageBitmap.x = 10;
+    //imageBitmap.y = 10;
     imageBitmap.alpha = 1;
+    imageBitmap.scaleX = 4;
     //imageBitmap.moveTo(100, 100);
 
     //单位矩阵
@@ -63,21 +64,21 @@ class DisplayObject implements Drawable {
 
     constructor() {
         this.localMatrix.updateFromDisplayObject(this.x, this.y, this.scaleX, this.scaleY, this.rotation);
-        if (this.parent) {
+        /*if (this.parent) {
             this.globalMatrix = math.matrixAppendMatrix(this.localMatrix, this.parent.globalMatrix);
         } else {
             this.globalMatrix = this.localMatrix;
-        }
+        }*/
     }
 
     draw(context2D: CanvasRenderingContext2D) {
         //this.localMatrix.updateFromDisplayObject(this.x, this.y, this.scaleX, this.scaleY, this.rotation);
         if (this.parent) {
             this.globalAlpha = this.parent.globalAlpha * this.alpha;
-//            this.globalMatrix = math.matrixAppendMatrix(this.localMatrix, this.parent.globalMatrix);
+            this.globalMatrix = math.matrixAppendMatrix(this.localMatrix, this.parent.globalMatrix);
         } else {
             this.globalAlpha = this.alpha;
-  //          this.globalMatrix = this.localMatrix;
+            this.globalMatrix = this.localMatrix;
         }
         context2D.globalAlpha = this.globalAlpha;
         this.globalMatrix.displayObjectSetTransform(context2D);
@@ -87,10 +88,13 @@ class DisplayObject implements Drawable {
     render(context2D: CanvasRenderingContext2D) {
 
     }
-    /*toString(): string{
-        return "DisplayObject\n" + "x: " + this.x + 
-        "y: " + this.y + ""
-    }*/
+
+    moveTo(x: number, y: number) {
+        var tempMatrix = new math.Matrix(1, 0, 0, 1, x - this.x, y - this.y);
+        this.globalMatrix = math.matrixAppendMatrix(this.globalMatrix, tempMatrix);
+    }
+
+    rotate(){}
 }
 
 class DisplayObjectContainer extends DisplayObject {
@@ -141,10 +145,6 @@ class Bitmap extends DisplayObject {
                 this.isLoaded = true;
             }
         }
-    }
-    moveTo(x: number, y: number) {
-        var tempMatrix = new math.Matrix(1, 0, 0, 1, x - this.x, y - this.y);
-        this.globalMatrix = math.matrixAppendMatrix(this.globalMatrix, tempMatrix);
     }
 }
 
