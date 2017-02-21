@@ -93,7 +93,7 @@ var math;
     }());
     math.Matrix = Matrix;
     function loadIdentityMatrix() {
-        return new Matrix(1, 0, 0, 1, 1, 1);
+        return new Matrix(1, 0, 0, 1, 0, 0);
     }
     math.loadIdentityMatrix = loadIdentityMatrix;
 })(math || (math = {}));

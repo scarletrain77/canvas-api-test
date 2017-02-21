@@ -12,30 +12,36 @@ window.onload = function () {
     textField.x = 10;
     textField.y = 20;
     textField.textColor = "#ff0000";
-    textField.alpha = 1;
+    //textField.alpha = .5;
+    //textField.rotation = 180;
+    var textField_2 = new TextField();
+    textField_2.text = "Hello world";
+    textField_2.rotation = 90;
+    textField_2.textSize = 50;
+    textField_2.x = 50;
+    textField_2.y = 50;
     var imageBitmap = new Bitmap();
     imageBitmap.name = "girl.jpg";
-    //imageBitmap.x = 10;
-    //imageBitmap.y = 10;
-    imageBitmap.alpha = 1;
-    imageBitmap.scaleX = 4;
-    //imageBitmap.moveTo(100, 100);
+    imageBitmap.x = 10;
+    imageBitmap.y = 10;
+    imageBitmap.alpha = 0.5;
+    imageBitmap.rotation = 45;
     //单位矩阵
-    //context2D.setTransform(1, 0, 0, 1, 1, 1);
+    //context2D.setTransform(1, 0, 0, 1, 0, 0);
     //a, b,c, d, tx, ty
     //a:x坐标放大倍数，d:y坐标放大倍数, tx向右平移， ty向下平移
-    /*var m = math.loadIdentityMatrix();
-    var m1 = new math.Matrix(1, 0, 0, 1, 1, 100);
-    var m2 = math.matrixAppendMatrix(m , m1);
-    m1.displayObjectSetTransform(context2D);*/
-    //context2D.setTransform(1, 0, 0, 1, 1, 1)
+    //context2D.setTransform(1, 0, 0, 1, 0, 0)
     stage.addChild(imageBitmap);
     stage.addChild(textField);
+    stage.addChild(textField_2);
     stage.alpha = 0.5;
     stage.draw(context2D);
     setInterval(function () {
+        context2D.setTransform(1, 0, 0, 1, 0, 0);
         context2D.clearRect(0, 0, canvas.width, canvas.height);
-        textField.x++;
+        imageBitmap.x++;
+        textField_2.x++;
+        textField_2.y++;
         stage.draw(context2D);
     }, 30);
 };
@@ -50,15 +56,9 @@ var DisplayObject = (function () {
         this.globalAlpha = 1;
         this.globalMatrix = math.loadIdentityMatrix();
         this.localMatrix = math.loadIdentityMatrix();
-        this.localMatrix.updateFromDisplayObject(this.x, this.y, this.scaleX, this.scaleY, this.rotation);
-        /*if (this.parent) {
-            this.globalMatrix = math.matrixAppendMatrix(this.localMatrix, this.parent.globalMatrix);
-        } else {
-            this.globalMatrix = this.localMatrix;
-        }*/
     }
     DisplayObject.prototype.draw = function (context2D) {
-        //this.localMatrix.updateFromDisplayObject(this.x, this.y, this.scaleX, this.scaleY, this.rotation);
+        this.localMatrix.updateFromDisplayObject(this.x, this.y, this.scaleX, this.scaleY, this.rotation);
         if (this.parent) {
             this.globalAlpha = this.parent.globalAlpha * this.alpha;
             this.globalMatrix = math.matrixAppendMatrix(this.localMatrix, this.parent.globalMatrix);
@@ -77,7 +77,6 @@ var DisplayObject = (function () {
         var tempMatrix = new math.Matrix(1, 0, 0, 1, x - this.x, y - this.y);
         this.globalMatrix = math.matrixAppendMatrix(this.globalMatrix, tempMatrix);
     };
-    DisplayObject.prototype.rotate = function () { };
     return DisplayObject;
 }());
 var DisplayObjectContainer = (function (_super) {
@@ -124,14 +123,13 @@ var Bitmap = (function (_super) {
     }
     Bitmap.prototype.render = function (context2D) {
         var _this = this;
-        context2D.globalAlpha = this.globalAlpha;
         if (this.isLoaded) {
-            context2D.drawImage(this.image, this.x, this.y);
+            context2D.drawImage(this.image, 0, 0);
         }
         else {
             this.image.src = this.name;
             this.image.onload = function () {
-                context2D.drawImage(_this.image, _this.x, _this.y, _this.width, _this.height);
+                context2D.drawImage(_this.image, 0, 0, _this.width, _this.height);
                 _this.isLoaded = true;
             };
         }
@@ -149,9 +147,8 @@ var TextField = (function (_super) {
     }
     TextField.prototype.render = function (context2D) {
         context2D.fillStyle = this.textColor.toLocaleUpperCase();
-        context2D.globalAlpha = this.globalAlpha;
         context2D.font = this.textSize.toString() + "pt " + this.textFont;
-        context2D.fillText(this.text, this.x, this.y);
+        context2D.fillText(this.text, 0, 0);
     };
     return TextField;
 }(DisplayObject));

@@ -1,6 +1,4 @@
 window.onload = () => {
-
-
     var canvas = document.getElementById("myCanvas") as HTMLCanvasElement;
     var context2D = canvas.getContext("2d");
     var stage: DisplayObjectContainer = new DisplayObjectContainer();
@@ -10,35 +8,42 @@ window.onload = () => {
     textField.x = 10;
     textField.y = 20;
     textField.textColor = "#ff0000"
-    textField.alpha = 1;
+    //textField.alpha = .5;
+    //textField.rotation = 180;
+
+    var textField_2 = new TextField();
+    textField_2.text = "Hello world";
+    textField_2.rotation = 90;
+    textField_2.textSize = 50;
+    textField_2.x = 50;
+    textField_2.y = 50;
 
     var imageBitmap: Bitmap = new Bitmap();
     imageBitmap.name = "girl.jpg"
-    //imageBitmap.x = 10;
-    //imageBitmap.y = 10;
-    imageBitmap.alpha = 1;
-    imageBitmap.scaleX = 4;
-    //imageBitmap.moveTo(100, 100);
+    imageBitmap.x = 10;
+    imageBitmap.y = 10;
+    imageBitmap.alpha = 0.5;
+    imageBitmap.rotation = 45;
 
     //单位矩阵
-    //context2D.setTransform(1, 0, 0, 1, 1, 1);
+    //context2D.setTransform(1, 0, 0, 1, 0, 0);
     //a, b,c, d, tx, ty
     //a:x坐标放大倍数，d:y坐标放大倍数, tx向右平移， ty向下平移
-    /*var m = math.loadIdentityMatrix();
-    var m1 = new math.Matrix(1, 0, 0, 1, 1, 100);
-    var m2 = math.matrixAppendMatrix(m , m1);
-    m1.displayObjectSetTransform(context2D);*/
-    //context2D.setTransform(1, 0, 0, 1, 1, 1)
+    //context2D.setTransform(1, 0, 0, 1, 0, 0)
 
     stage.addChild(imageBitmap);
     stage.addChild(textField);
+    stage.addChild(textField_2);
     stage.alpha = 0.5;
     stage.draw(context2D);
 
 
     setInterval(() => {
+        context2D.setTransform(1, 0, 0, 1, 0, 0);
         context2D.clearRect(0, 0, canvas.width, canvas.height);
-        textField.x++
+        imageBitmap.x++;
+        textField_2.x++;
+        textField_2.y++;
         stage.draw(context2D);
     }, 30)
 };
@@ -62,17 +67,8 @@ class DisplayObject implements Drawable {
     globalMatrix: math.Matrix = math.loadIdentityMatrix();
     localMatrix: math.Matrix = math.loadIdentityMatrix();
 
-    constructor() {
-        this.localMatrix.updateFromDisplayObject(this.x, this.y, this.scaleX, this.scaleY, this.rotation);
-        /*if (this.parent) {
-            this.globalMatrix = math.matrixAppendMatrix(this.localMatrix, this.parent.globalMatrix);
-        } else {
-            this.globalMatrix = this.localMatrix;
-        }*/
-    }
-
     draw(context2D: CanvasRenderingContext2D) {
-        //this.localMatrix.updateFromDisplayObject(this.x, this.y, this.scaleX, this.scaleY, this.rotation);
+         this.localMatrix.updateFromDisplayObject(this.x, this.y, this.scaleX, this.scaleY, this.rotation);
         if (this.parent) {
             this.globalAlpha = this.parent.globalAlpha * this.alpha;
             this.globalMatrix = math.matrixAppendMatrix(this.localMatrix, this.parent.globalMatrix);
@@ -80,6 +76,7 @@ class DisplayObject implements Drawable {
             this.globalAlpha = this.alpha;
             this.globalMatrix = this.localMatrix;
         }
+       
         context2D.globalAlpha = this.globalAlpha;
         this.globalMatrix.displayObjectSetTransform(context2D);
         this.render(context2D);
@@ -93,8 +90,6 @@ class DisplayObject implements Drawable {
         var tempMatrix = new math.Matrix(1, 0, 0, 1, x - this.x, y - this.y);
         this.globalMatrix = math.matrixAppendMatrix(this.globalMatrix, tempMatrix);
     }
-
-    rotate(){}
 }
 
 class DisplayObjectContainer extends DisplayObject {
@@ -135,13 +130,12 @@ class Bitmap extends DisplayObject {
         this.image = document.createElement("img");
     }
     render(context2D: CanvasRenderingContext2D) {
-        context2D.globalAlpha = this.globalAlpha;
         if (this.isLoaded) {
-            context2D.drawImage(this.image, this.x, this.y);
+            context2D.drawImage(this.image, 0, 0);
         } else {
             this.image.src = this.name;
             this.image.onload = () => {
-                context2D.drawImage(this.image, this.x, this.y, this.width, this.height);
+                context2D.drawImage(this.image, 0, 0, this.width, this.height);
                 this.isLoaded = true;
             }
         }
@@ -155,8 +149,7 @@ class TextField extends DisplayObject {
     textFont = "Calibri";
     render(context2D: CanvasRenderingContext2D) {
         context2D.fillStyle = this.textColor.toLocaleUpperCase();
-        context2D.globalAlpha = this.globalAlpha;
         context2D.font = this.textSize.toString() + "pt " + this.textFont;
-        context2D.fillText(this.text, this.x, this.y);
+        context2D.fillText(this.text, 0, 0);
     }
 }
