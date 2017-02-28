@@ -25,7 +25,7 @@ window.onload = () => {
     imageBitmap.alpha = 0.5;
     imageBitmap.rotation = 45;
 
-    textField.addEventListener(TouchType.CLICK,()=>{
+    textField.addEventListener(TouchType.CLICK, () => {
         alert("click");
     });
 
@@ -51,41 +51,45 @@ window.onload = () => {
         stage.draw(context2D);
     }, 30)
 
-    window.onmousedown;
-    window.onmouseup;
     window.onmousedown = (e) => {
-        console.log(e);
         let x = e.offsetX - 3;
         let y = e.offsetY - 3;
         let result = stage.hitTest(x, y);
         let target = result;
+        console.log(result)
         if (result) {
             do {
-                //result.dispatchEvent(e);
+                result.dispatchEvent(e);
             }
             while (result.parent) {
                 let type = "onmousedown";
                 let currentTarget = result.parent;
-                let e = { type, target, currentTarget }
-                //result.parent.dispatchEvent(e);
+                let e = { type, target, currentTarget };
+                result.dispatchEvent(e);
                 result = result.parent;
             }
         }
     }
 
-    setTimeout(function () {
-        let result = stage.hitTest(50, 50);
+    window.onmouseup = (e) => {
+        let x = e.offsetX - 3;
+        let y = e.offsetY - 3;
+        let result = stage.hitTest(x, y);
+        let target = result;
+        console.log(result)
         if (result) {
             do {
-                //result.dispatchEvent();
+                result.dispatchEvent(e);
             }
             while (result.parent) {
-                //result.dispatchEvent();
+                let type = "onmouseup";
+                let currentTarget = result.parent;
+                let e = { type, target, currentTarget };
+                result.dispatchEvent(e);
                 result = result.parent;
             }
         }
-        console.log(result);
-    }, 1000);
+    }
 };
 
 

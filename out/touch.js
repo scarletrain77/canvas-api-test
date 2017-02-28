@@ -16,4 +16,12 @@ var TouchEventListener = (function () {
     }
     return TouchEventListener;
 }());
+var TouchEvents = (function () {
+    function TouchEvents(x, y, type) {
+        this.x = x;
+        this.y = y;
+        this.type = type;
+    }
+    return TouchEvents;
+}());
 //# sourceMappingURL=touch.js.map

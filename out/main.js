@@ -47,38 +47,44 @@ window.onload = function () {
         textField_2.y++;
         stage.draw(context2D);
     }, 30);
-    window.onmousedown;
-    window.onmouseup;
     window.onmousedown = function (e) {
-        console.log(e);
         var x = e.offsetX - 3;
         var y = e.offsetY - 3;
         var result = stage.hitTest(x, y);
         var target = result;
+        console.log(result);
         if (result) {
             do {
+                result.dispatchEvent(e);
             } while (result.parent);
             {
                 var type = "onmousedown";
                 var currentTarget = result.parent;
                 var e_1 = { type: type, target: target, currentTarget: currentTarget };
-                //result.parent.dispatchEvent(e);
+                result.dispatchEvent(e_1);
                 result = result.parent;
             }
         }
     };
-    setTimeout(function () {
-        var result = stage.hitTest(50, 50);
+    window.onmouseup = function (e) {
+        var x = e.offsetX - 3;
+        var y = e.offsetY - 3;
+        var result = stage.hitTest(x, y);
+        var target = result;
+        console.log(result);
         if (result) {
             do {
+                result.dispatchEvent(e);
             } while (result.parent);
             {
-                //result.dispatchEvent();
+                var type = "onmouseup";
+                var currentTarget = result.parent;
+                var e_2 = { type: type, target: target, currentTarget: currentTarget };
+                result.dispatchEvent(e_2);
                 result = result.parent;
             }
         }
-        console.log(result);
-    }, 1000);
+    };
 };
 var Bitmap = (function (_super) {
     __extends(Bitmap, _super);

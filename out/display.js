@@ -14,6 +14,7 @@ var DisplayObject = (function () {
         this.globalAlpha = 1;
         this.globalMatrix = math.loadIdentityMatrix();
         this.localMatrix = math.loadIdentityMatrix();
+        this.isMouseDown = false;
         this.touchListeners = [];
     }
     DisplayObject.prototype.draw = function (context2D) {
@@ -39,6 +40,22 @@ var DisplayObject = (function () {
     DisplayObject.prototype.addEventListener = function (type, touchListener, capture, priority) {
         var event = new TouchEventListener(type, touchListener, capture, priority);
         this.touchListeners.push(event);
+    };
+    DisplayObject.prototype.dispatchEvent = function (e) {
+        console.log(e.type);
+        if (e.type == "mousedown") {
+            this.isMouseDown = true;
+        }
+        else if (e.type == "mouseup" && this.isMouseDown == true) {
+            for (var i = 0; i < this.touchListeners.length; i++) {
+                if (this.touchListeners[i].type == TouchType.CLICK) {
+                    this.touchListeners[i].func();
+                }
+            }
+            this.isMouseDown = false;
+        }
+        else if (e.type == "mousemove") {
+        }
     };
     return DisplayObject;
 }());

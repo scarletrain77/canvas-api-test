@@ -17,6 +17,7 @@ abstract class DisplayObject implements Drawable {
     globalMatrix: math.Matrix = math.loadIdentityMatrix();
     localMatrix: math.Matrix = math.loadIdentityMatrix();
 
+    isMouseDown = false;
     touchListeners: TouchEventListener[] = [];
 
     draw(context2D: CanvasRenderingContext2D) {
@@ -46,6 +47,22 @@ abstract class DisplayObject implements Drawable {
     addEventListener(type: TouchType, touchListener: Function, capture?: boolean, priority?: number) {
         var event = new TouchEventListener(type, touchListener, capture, priority);
         this.touchListeners.push(event);
+    }
+
+    dispatchEvent(e: any) {
+        console.log(e.type);
+        if (e.type == "mousedown") {
+            this.isMouseDown = true;
+        } else if (e.type == "mouseup" && this.isMouseDown == true) {//other types unfinish
+            for (let i = 0; i < this.touchListeners.length; i++) {
+                if (this.touchListeners[i].type == TouchType.CLICK) {
+                    this.touchListeners[i].func();
+                }
+            }
+            this.isMouseDown = false;
+        } else if (e.type == "mousemove") {
+
+        }
     }
 
     abstract hitTest(x: number, y: number)
