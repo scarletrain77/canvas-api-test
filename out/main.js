@@ -26,6 +26,9 @@ window.onload = function () {
     imageBitmap.y = 10;
     imageBitmap.alpha = 0.5;
     imageBitmap.rotation = 45;
+    textField.addEventListener(TouchType.CLICK, function () {
+        alert("click");
+    });
     //单位矩阵
     //context2D.setTransform(1, 0, 0, 1, 0, 0);
     //a, b,c, d, tx, ty
@@ -44,72 +47,39 @@ window.onload = function () {
         textField_2.y++;
         stage.draw(context2D);
     }, 30);
-};
-var DisplayObject = (function () {
-    function DisplayObject() {
-        this.x = 0;
-        this.y = 0;
-        this.scaleX = 1;
-        this.scaleY = 1;
-        this.rotation = 0;
-        this.alpha = 1;
-        this.globalAlpha = 1;
-        this.globalMatrix = math.loadIdentityMatrix();
-        this.localMatrix = math.loadIdentityMatrix();
-    }
-    DisplayObject.prototype.draw = function (context2D) {
-        this.localMatrix.updateFromDisplayObject(this.x, this.y, this.scaleX, this.scaleY, this.rotation);
-        if (this.parent) {
-            this.globalAlpha = this.parent.globalAlpha * this.alpha;
-            this.globalMatrix = math.matrixAppendMatrix(this.localMatrix, this.parent.globalMatrix);
-        }
-        else {
-            this.globalAlpha = this.alpha;
-            this.globalMatrix = this.localMatrix;
-        }
-        context2D.globalAlpha = this.globalAlpha;
-        this.globalMatrix.displayObjectSetTransform(context2D);
-        this.render(context2D);
-    };
-    DisplayObject.prototype.render = function (context2D) {
-    };
-    DisplayObject.prototype.moveTo = function (x, y) {
-        var tempMatrix = new math.Matrix(1, 0, 0, 1, x - this.x, y - this.y);
-        this.globalMatrix = math.matrixAppendMatrix(this.globalMatrix, tempMatrix);
-    };
-    return DisplayObject;
-}());
-var DisplayObjectContainer = (function (_super) {
-    __extends(DisplayObjectContainer, _super);
-    function DisplayObjectContainer() {
-        _super.call(this);
-        this.childs = [];
-    }
-    DisplayObjectContainer.prototype.render = function (context2D) {
-        for (var _i = 0, _a = this.childs; _i < _a.length; _i++) {
-            var drawable = _a[_i];
-            drawable.draw(context2D);
-        }
-    };
-    DisplayObjectContainer.prototype.addChild = function (child) {
-        if (this.childs.indexOf(child) == -1) {
-            child.parent = this;
-            this.childs.push(child);
-        }
-    };
-    //拷贝一个数组
-    DisplayObjectContainer.prototype.removeChild = function (child) {
-        for (var _i = 0, _a = this.childs; _i < _a.length; _i++) {
-            var element = _a[_i];
-            if (element == child) {
-                var index = this.childs.indexOf(child);
-                this.childs.splice(index);
-                return;
+    window.onmousedown;
+    window.onmouseup;
+    window.onmousedown = function (e) {
+        console.log(e);
+        var x = e.offsetX - 3;
+        var y = e.offsetY - 3;
+        var result = stage.hitTest(x, y);
+        var target = result;
+        if (result) {
+            do {
+            } while (result.parent);
+            {
+                var type = "onmousedown";
+                var currentTarget = result.parent;
+                var e_1 = { type: type, target: target, currentTarget: currentTarget };
+                //result.parent.dispatchEvent(e);
+                result = result.parent;
             }
         }
     };
-    return DisplayObjectContainer;
-}(DisplayObject));
+    setTimeout(function () {
+        var result = stage.hitTest(50, 50);
+        if (result) {
+            do {
+            } while (result.parent);
+            {
+                //result.dispatchEvent();
+                result = result.parent;
+            }
+        }
+        console.log(result);
+    }, 1000);
+};
 var Bitmap = (function (_super) {
     __extends(Bitmap, _super);
     function Bitmap() {
@@ -134,6 +104,17 @@ var Bitmap = (function (_super) {
             };
         }
     };
+    Bitmap.prototype.hitTest = function (x, y) {
+        console.log("bitmap");
+        var rect = new math.Rectangle();
+        rect.x = rect.y = 0;
+        rect.width = this.image.width;
+        rect.height = this.image.height;
+        if (rect.isPointInReactangle(new math.Point(x, y))) {
+            alert("touch");
+            return this;
+        }
+    };
     return Bitmap;
 }(DisplayObject));
 var TextField = (function (_super) {
@@ -149,6 +130,14 @@ var TextField = (function (_super) {
         context2D.fillStyle = this.textColor.toLocaleUpperCase();
         context2D.font = this.textSize.toString() + "pt " + this.textFont;
         context2D.fillText(this.text, 0, 0);
+    };
+    TextField.prototype.hitTest = function (x, y) {
+        console.log("textfield");
+        var rect = new math.Rectangle();
+        rect.height = 20;
+        rect.width = 10 * this.text.length;
+        var point = new math.Point(x, y);
+        return rect.isPointInReactangle(point) ? this : null;
     };
     return TextField;
 }(DisplayObject));

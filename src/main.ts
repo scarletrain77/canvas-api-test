@@ -25,6 +25,10 @@ window.onload = () => {
     imageBitmap.alpha = 0.5;
     imageBitmap.rotation = 45;
 
+    textField.addEventListener(TouchType.CLICK,()=>{
+        alert("click");
+    });
+
     //单位矩阵
     //context2D.setTransform(1, 0, 0, 1, 0, 0);
     //a, b,c, d, tx, ty
@@ -46,79 +50,45 @@ window.onload = () => {
         textField_2.y++;
         stage.draw(context2D);
     }, 30)
-};
 
-interface Drawable {
-    draw(context2D: CanvasRenderingContext2D);
-}
-
-class DisplayObject implements Drawable {
-    x: number = 0;
-    y: number = 0;
-    scaleX: number = 1;
-    scaleY: number = 1;
-    rotation: number = 0;
-
-    alpha: number = 1;
-    globalAlpha: number = 1;
-
-    parent: DisplayObjectContainer;
-
-    globalMatrix: math.Matrix = math.loadIdentityMatrix();
-    localMatrix: math.Matrix = math.loadIdentityMatrix();
-
-    draw(context2D: CanvasRenderingContext2D) {
-         this.localMatrix.updateFromDisplayObject(this.x, this.y, this.scaleX, this.scaleY, this.rotation);
-        if (this.parent) {
-            this.globalAlpha = this.parent.globalAlpha * this.alpha;
-            this.globalMatrix = math.matrixAppendMatrix(this.localMatrix, this.parent.globalMatrix);
-        } else {
-            this.globalAlpha = this.alpha;
-            this.globalMatrix = this.localMatrix;
-        }
-       
-        context2D.globalAlpha = this.globalAlpha;
-        this.globalMatrix.displayObjectSetTransform(context2D);
-        this.render(context2D);
-    }
-
-    render(context2D: CanvasRenderingContext2D) {
-
-    }
-
-    moveTo(x: number, y: number) {
-        var tempMatrix = new math.Matrix(1, 0, 0, 1, x - this.x, y - this.y);
-        this.globalMatrix = math.matrixAppendMatrix(this.globalMatrix, tempMatrix);
-    }
-}
-
-class DisplayObjectContainer extends DisplayObject {
-    childs: Drawable[] = [];
-    constructor() {
-        super();
-    }
-    render(context2D: CanvasRenderingContext2D) {
-        for (let drawable of this.childs) {
-            drawable.draw(context2D);
-        }
-    }
-    addChild(child: DisplayObject) {
-        if (this.childs.indexOf(child) == -1) {
-            child.parent = this;
-            this.childs.push(child);
-        }
-    }
-    //拷贝一个数组
-    removeChild(child: Drawable) {
-        for (var element of this.childs) {
-            if (element == child) {
-                var index = this.childs.indexOf(child);
-                this.childs.splice(index);
-                return;
+    window.onmousedown;
+    window.onmouseup;
+    window.onmousedown = (e) => {
+        console.log(e);
+        let x = e.offsetX - 3;
+        let y = e.offsetY - 3;
+        let result = stage.hitTest(x, y);
+        let target = result;
+        if (result) {
+            do {
+                //result.dispatchEvent(e);
+            }
+            while (result.parent) {
+                let type = "onmousedown";
+                let currentTarget = result.parent;
+                let e = { type, target, currentTarget }
+                //result.parent.dispatchEvent(e);
+                result = result.parent;
             }
         }
     }
-}
+
+    setTimeout(function () {
+        let result = stage.hitTest(50, 50);
+        if (result) {
+            do {
+                //result.dispatchEvent();
+            }
+            while (result.parent) {
+                //result.dispatchEvent();
+                result = result.parent;
+            }
+        }
+        console.log(result);
+    }, 1000);
+};
+
+
 class Bitmap extends DisplayObject {
     width: number = -1;
     height: number = -1;
@@ -140,6 +110,19 @@ class Bitmap extends DisplayObject {
             }
         }
     }
+
+
+    hitTest(x: number, y: number) {
+        console.log("bitmap");
+        let rect = new math.Rectangle();
+        rect.x = rect.y = 0;
+        rect.width = this.image.width;
+        rect.height = this.image.height;
+        if (rect.isPointInReactangle(new math.Point(x, y))) {
+            alert("touch");
+            return this;
+        }
+    }
 }
 
 class TextField extends DisplayObject {
@@ -151,5 +134,14 @@ class TextField extends DisplayObject {
         context2D.fillStyle = this.textColor.toLocaleUpperCase();
         context2D.font = this.textSize.toString() + "pt " + this.textFont;
         context2D.fillText(this.text, 0, 0);
+    }
+    hitTest(x: number, y: number) {
+        console.log("textfield");
+        var rect = new math.Rectangle();
+        rect.height = 20;
+        rect.width = 10 * this.text.length;
+        var point = new math.Point(x, y);
+        return rect.isPointInReactangle(point) ? this : null;
+
     }
 }
