@@ -37,8 +37,8 @@ var DisplayObject = (function () {
         var tempMatrix = new math.Matrix(1, 0, 0, 1, x - this.x, y - this.y);
         this.globalMatrix = math.matrixAppendMatrix(this.globalMatrix, tempMatrix);
     };
-    DisplayObject.prototype.addEventListener = function (type, touchListener, capture, priority) {
-        var event = new TouchEventListener(type, touchListener, capture, priority);
+    DisplayObject.prototype.addEventListener = function (type, touchListener, obj, capture, priority) {
+        var event = new TouchEvents(type, touchListener, obj, capture, priority);
         this.touchListeners.push(event);
     };
     DisplayObject.prototype.dispatchEvent = function (e) {
@@ -48,7 +48,7 @@ var DisplayObject = (function () {
         }
         else if (e.type == "mouseup" && this.isMouseDown == true) {
             for (var i = 0; i < this.touchListeners.length; i++) {
-                if (this.touchListeners[i].type == TouchType.CLICK) {
+                if (this.touchListeners[i].type == TouchEventsType.CLICK) {
                     this.touchListeners[i].func();
                 }
             }
@@ -89,20 +89,15 @@ var DisplayObjectContainer = (function (_super) {
         }
     };
     DisplayObjectContainer.prototype.hitTest = function (x, y) {
-        console.log("container");
         for (var i = this.children.length - 1; i >= 0; i--) {
             var child = this.children[i];
-            var point = new math.Point(x, y);
-            var invertChildLocalMatrix = math.invertMatrix(child.localMatrix);
-            var pointBaseOnChild = math.pointAppendMatrix(point, child.localMatrix);
-            var HitTestResult = child.hitTest(pointBaseOnChild.x, pointBaseOnChild.y);
-            if (HitTestResult) {
-                return HitTestResult;
-            }
-            else {
-                return null;
+            var pointBaseOnChild = math.pointAppendMatrix(new math.Point(x, y), math.invertMatrix(child.globalMatrix));
+            var hitTestResult = child.hitTest(pointBaseOnChild.x, pointBaseOnChild.y);
+            if (hitTestResult) {
+                return hitTestResult;
             }
         }
+        return null;
     };
     return DisplayObjectContainer;
 }(DisplayObject));

@@ -18,7 +18,7 @@ abstract class DisplayObject implements Drawable {
     localMatrix: math.Matrix = math.loadIdentityMatrix();
 
     isMouseDown = false;
-    touchListeners: TouchEventListener[] = [];
+    touchListeners: TouchEvents[] = [];
 
     draw(context2D: CanvasRenderingContext2D) {
         this.localMatrix.updateFromDisplayObject(this.x, this.y, this.scaleX, this.scaleY, this.rotation);
@@ -44,8 +44,8 @@ abstract class DisplayObject implements Drawable {
         this.globalMatrix = math.matrixAppendMatrix(this.globalMatrix, tempMatrix);
     }
 
-    addEventListener(type: TouchType, touchListener: Function, capture?: boolean, priority?: number) {
-        var event = new TouchEventListener(type, touchListener, capture, priority);
+    addEventListener(type: TouchEventsType, touchListener: Function, obj: any, capture?: boolean, priority?: number) {
+        var event = new TouchEvents(type, touchListener, obj, capture, priority);
         this.touchListeners.push(event);
     }
 
@@ -55,7 +55,7 @@ abstract class DisplayObject implements Drawable {
             this.isMouseDown = true;
         } else if (e.type == "mouseup" && this.isMouseDown == true) {//other types unfinish
             for (let i = 0; i < this.touchListeners.length; i++) {
-                if (this.touchListeners[i].type == TouchType.CLICK) {
+                if (this.touchListeners[i].type == TouchEventsType.CLICK) {
                     this.touchListeners[i].func();
                 }
             }
@@ -96,20 +96,79 @@ class DisplayObjectContainer extends DisplayObject {
     }
 
     hitTest(x: number, y: number) {
-        console.log("container");
         for (let i = this.children.length - 1; i >= 0; i--) {
-            let child = this.children[i];
-            let point = new math.Point(x, y);
-            let invertChildLocalMatrix = math.invertMatrix(child.localMatrix);
-            let pointBaseOnChild = math.pointAppendMatrix(point, child.localMatrix);
-            let HitTestResult = child.hitTest(pointBaseOnChild.x, pointBaseOnChild.y);
-            if (HitTestResult) {
-                return HitTestResult;
+            var child = this.children[i];
+            var pointBaseOnChild = math.pointAppendMatrix(new math.Point(x, y), math.invertMatrix(child.globalMatrix));
+            var hitTestResult = child.hitTest(pointBaseOnChild.x, pointBaseOnChild.y);
+            if (hitTestResult) {
+                return hitTestResult;
             }
-            else {
-                return null;
+        }
+        return null;
+    }
+
+}
+
+class Bitmap extends DisplayObject {
+    width: number = -1;
+    height: number = -1;
+    name: string = "";
+    private image: HTMLImageElement = null;
+    private isLoaded = false;
+    constructor() {
+        super();
+        this.image = document.createElement("img");
+    }
+    render(context2D: CanvasRenderingContext2D) {
+        if (this.isLoaded) {
+            context2D.drawImage(this.image, 0, 0);
+        } else {
+            this.image.src = this.name;
+            this.image.onload = () => {
+                context2D.drawImage(this.image, 0, 0, this.width, this.height);
+                this.isLoaded = true;
             }
         }
     }
 
+
+    hitTest(x: number, y: number) {
+        console.log("bitmap");
+        let rect = new math.Rectangle();
+        rect.x = rect.y = 0;
+        if (this.height == -1 && this.width == -1) {
+            rect.width = this.image.width;
+            rect.height = this.image.height;
+        } else {
+            rect.width = this.width;
+            rect.height = this.height;
+        }
+        if (rect.isPointInReactangle(new math.Point(x, y))) {
+            return this;
+        }
+        return null;
+    }
+}
+
+class TextField extends DisplayObject {
+    text: string = "";
+    textColor: string = "#000000"
+    textSize = 12;
+    textFont = "Calibri";
+    render(context2D: CanvasRenderingContext2D) {
+        context2D.fillStyle = this.textColor.toLocaleUpperCase();
+        context2D.font = this.textSize.toString() + "pt " + this.textFont;
+        context2D.fillText(this.text, 0, 0);
+    }
+    hitTest(x: number, y: number) {
+        var rect = new math.Rectangle();
+        var point = new math.Point(x, y);
+        rect.x = 0;
+        rect.y = 0;
+        rect.width = this.textSize * this.text.length;
+        rect.height = this.textSize;
+        let invertChildLocalMatrix = math.invertMatrix(this.localMatrix);
+        let pointBaseOnChild = math.pointAppendMatrix(new math.Point(x, y), invertChildLocalMatrix);
+        return rect.isPointInReactangle(pointBaseOnChild)
+    }
 }
