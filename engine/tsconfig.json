@@ -2,13 +2,14 @@
     "compilerOptions": {
         "target": "es5",
         "sourceMap": true,
-        "out": "./engine/out/engine.js",
+        "out": "./out/engine.js",
         "declaration": true
     },
     "files": [
-        "src/math.ts",
-        "src/display.ts",
-        "src/touch.ts",
+        "src/core/math.ts",
+        "src/core/displaylist.ts",
+        "src/core/touchevent.ts",
+        "src/core/ticker.ts",
         "src/platforms/browser/driver.ts"
     ]
 }

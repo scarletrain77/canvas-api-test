@@ -1,7 +1,4 @@
-
-
-module math {
-
+namespace engine {
 
     export class Point {
         x: number;
@@ -12,14 +9,14 @@ module math {
         }
     }
 
-    export class Rectangle{
+    export class Rectangle {
         x: number;
         y: number;
         width: number;
         height: number;
-        isPointInReactangle(point: Point){
-            if(point.x >= this.x && point.x <= (this.x + this.width)
-            && point.y >= this.y && point.y <= (this.y + this.height)){
+        isPointInReactangle(point: Point) {
+            if (point.x >= this.x && point.x <= (this.x + this.width)
+                && point.y >= this.y && point.y <= (this.y + this.height)) {
                 return true;
             }
             return false;
