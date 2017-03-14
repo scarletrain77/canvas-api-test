@@ -26,4 +26,3 @@ engine.Ticker.getInstance().register(function (deltaTime) {
     //bitmap.x += 1;
 });
 console.log("aaa");
-//# sourceMappingURL=test.js.map

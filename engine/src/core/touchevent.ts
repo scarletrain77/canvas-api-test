@@ -1,4 +1,11 @@
 namespace engine {
+    export enum TouchEventsType {
+        MOUSEDOWN,
+        MOUSEUP,
+        CLICK,
+        MOUSEMOVE,
+        TOUCH_TAP
+    }
     export class TouchEvents {
         type: TouchEventsType;
         func: Function;
@@ -63,9 +70,3 @@ namespace engine {
     }
 }
 
-enum TouchEventsType {
-    MOUSEDOWN,
-    MOUSEUP,
-    CLICK,
-    MOUSEMOVE
-}

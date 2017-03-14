@@ -10,6 +10,7 @@
         "src/core/displaylist.ts",
         "src/core/touchevent.ts",
         "src/core/ticker.ts",
+        "src/core/res.ts",
         "src/platforms/browser/driver.ts"
     ]
 }

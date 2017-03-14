@@ -2,9 +2,10 @@
     "compilerOptions": {
         "target": "es5",
         "module": "commonjs",
-        "watch": true,
-        "sourceMap": true,
-        "outDir": "./out"
+        //"watch": true,
+        //"sourceMap": true,
+        "outDir": "./out",
+        "experimentalDecorators":true
     },
     "include": [
         "./src/*.ts",

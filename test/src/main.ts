@@ -1,116 +1,149 @@
-/*window.onload = () => {
-    var canvas = document.getElementById("myCanvas") as HTMLCanvasElement;
-    var context2D = canvas.getContext("2d");
-    var stage: DisplayObjectContainer = new DisplayObjectContainer();
+/*class Main extends engine.DisplayObjectContainer {
 
-    var textField: TextField = new TextField();
-    textField.text = "aaa";
-    textField.x = 10;
-    textField.y = 20;
-    textField.textColor = "#ff0000"
-    //textField.alpha = .5;
-    //textField.rotation = 180;
+    private loadingView: LoadingUI;
 
-    var textField_2 = new TextField();
-    textField_2.text = "Hello world";
-    //textField_2.rotation = 90;
-    textField_2.textSize = 50;
-    textField_2.x = 50;
-    textField_2.y = 50;
-
-    var imageBitmap: Bitmap = new Bitmap();
-    imageBitmap.name = "girl.jpg"
-    imageBitmap.x = 10;
-    imageBitmap.y = 30;
-    //imageBitmap.alpha = 0.5;
-    //imageBitmap.rotation = 45;
-
-    //单位矩阵
-    //context2D.setTransform(1, 0, 0, 1, 0, 0);
-    //a, b,c, d, tx, ty
-    //a:x坐标放大倍数，d:y坐标放大倍数, tx向右平移， ty向下平移
-    //context2D.setTransform(1, 0, 0, 1, 0, 0)
-
-    stage.addChild(imageBitmap);
-    stage.addChild(textField);
-    stage.addChild(textField_2);
-    stage.alpha = 0.5;
-    stage.draw(context2D);
-
-
-    setInterval(() => {
-        context2D.setTransform(1, 0, 0, 1, 0, 0);
-        context2D.clearRect(0, 0, canvas.width, canvas.height);
-        stage.draw(context2D);
-    }, 30)
-
-    var curTarget;
-    var staTarget;
-    var isMouseDown = false;
-    var staPoint = new math.Point(0, 0);
-    var movingPoint = new math.Point(0, 0);
-    var container = new DisplayObjectContainer();
-
-    textField.addEventListener(TouchEventsType.MOUSEMOVE, () => {
-        if (curTarget == staTarget) {
-            container.x += (TouchEventService.stageX - movingPoint.x);
-            container.y += (TouchEventService.stageY - movingPoint.y);
-            alert("listhhh");
-        }
-    }, this);
-
-    textField_2.addEventListener(TouchEventsType.CLICK, () => {
-        alert("You have click!");
-        console.log("button");
-    }, this);
-
-    window.onmousedown = (e) => {
-        let x = e.offsetX;
-        let y = e.offsetY;
-        TouchEventService.stageX = x;
-        TouchEventService.stageY = y;
-        staPoint.x = x;
-        staPoint.y = y;
-        movingPoint.x = x;
-        movingPoint.y = y;
-        TouchEventService.currentType = TouchEventsType.MOUSEDOWN;
-        curTarget = stage.hitTest(x, y);
-        staTarget = curTarget;
-        TouchEventService.getInstance().toDo();
-        isMouseDown = true;
+    public constructor() {
+        super();
+        this.addEventListener(egret.Event.ADDED_TO_STAGE, this.onAddToStage, this);
     }
 
-    window.onmouseup = (e) => {
-        let x = e.offsetX;
-        let y = e.offsetY;
-        TouchEventService.stageX = x;
-        TouchEventService.stageY = y;
-        var target = stage.hitTest(x, y);
-        if (target == curTarget) {
-            TouchEventService.currentType = TouchEventsType.CLICK;
-        }
-        else {
-            TouchEventService.currentType = TouchEventsType.MOUSEUP
-        }
-        TouchEventService.getInstance().toDo();
-        curTarget = null;
-        isMouseDown = false;
+    private onAddToStage(event: egret.Event) {
+        //设置加载进度界面
+        //Config to load process interface
+        this.loadingView = new LoadingUI();
+        this.stage.addChild(this.loadingView);
+
+        //初始化Resource资源加载库
+        //initiate Resource loading library
+        RES.addEventListener(RES.ResourceEvent.CONFIG_COMPLETE, this.onConfigComplete, this);
+        RES.loadConfig("resource/default.res.json", "resource/");
     }
 
-    window.onmousemove = (e) => {
-        if (isMouseDown) {
-            let x = e.offsetX;
-            let y = e.offsetY;
-            TouchEventService.stageX = x;
-            TouchEventService.stageY = y;
-            TouchEventService.currentType = TouchEventsType.MOUSEMOVE;
-            curTarget = stage.hitTest(x, y);
-            TouchEventService.getInstance().toDo();
-            movingPoint.x = x;
-            movingPoint.y = y;
+    private onConfigComplete(event: RES.ResourceEvent): void {
+        RES.removeEventListener(RES.ResourceEvent.CONFIG_COMPLETE, this.onConfigComplete, this);
+        RES.addEventListener(RES.ResourceEvent.GROUP_COMPLETE, this.onResourceLoadComplete, this);
+        RES.addEventListener(RES.ResourceEvent.GROUP_LOAD_ERROR, this.onResourceLoadError, this);
+        RES.addEventListener(RES.ResourceEvent.GROUP_PROGRESS, this.onResourceProgress, this);
+        RES.addEventListener(RES.ResourceEvent.ITEM_LOAD_ERROR, this.onItemLoadError, this);
+        RES.loadGroup("preload");
+    }
+
+
+    private onResourceLoadComplete(event: RES.ResourceEvent): void {
+        if (event.groupName == "preload") {
+            this.stage.removeChild(this.loadingView);
+            RES.removeEventListener(RES.ResourceEvent.GROUP_COMPLETE, this.onResourceLoadComplete, this);
+            RES.removeEventListener(RES.ResourceEvent.GROUP_LOAD_ERROR, this.onResourceLoadError, this);
+            RES.removeEventListener(RES.ResourceEvent.GROUP_PROGRESS, this.onResourceProgress, this);
+            RES.removeEventListener(RES.ResourceEvent.ITEM_LOAD_ERROR, this.onItemLoadError, this);
+            this.createGameScene();
         }
     }
-};
 
+    private onItemLoadError(event: RES.ResourceEvent): void {
+        console.warn("Url:" + event.resItem.url + " has failed to load");
+    }
+
+    private onResourceLoadError(event: RES.ResourceEvent): void {
+        //TODO
+        console.warn("Group:" + event.groupName + " has failed to load");
+        //忽略加载失败的项目
+        //Ignore the loading failed projects
+        this.onResourceLoadComplete(event);
+    }
+
+
+    private onResourceProgress(event: RES.ResourceEvent): void {
+        if (event.groupName == "preload") {
+            this.loadingView.setProgress(event.itemsLoaded, event.itemsTotal);
+        }
+    }
+
+    private textfield: egret.TextField;
+
+
+    private createGameScene(): void {*/
+        var sky: engine.Bitmap = this.createBitmapByName("bg_jpg");
+        this.addChild(sky);
+        var stageW: number = this.stage.stageWidth;
+        var stageH: number = this.stage.stageHeight;
+        sky.width = stageW;
+        sky.height = stageH;
+        //TileMapSuccess
+        //this.addChild(new TileMap());
+        //TaskSystem without UserPanel
+        //this.addChild(new TaskSystem());
+        //this.addChild(new UserSystem());
+
+
+        var scene = new GameScene();
+        GameScene.replaceScene(scene);
+        this.addChild(scene);
+
+        var list = new CommandList();
+        GameScene.getCurrentScene().userSystem.tileMap.addEventListener(engine.TouchEventsType.TOUCH_TAP, (e) => {
+            if (GameScene.getCurrentScene().userSystem.NPC_0.getDialogPanelState() == false) {
+                list.addCommand(new WalkCommand(e.stageX, e.stageY));
+                list.execute();
+            }
+        }, this);
+
+        GameScene.getCurrentScene().userSystem.NPC_0.addEventListener(engine.TouchEventsType.TOUCH_TAP, (e) => {
+            UserSystem.currentNPC = GameScene.getCurrentScene().userSystem.NPC_0;
+            list.addCommand(new WalkCommand(e.stageX, e.stageY));
+            list.addCommand(new TalkCommand());
+            list.execute();
+        }, this);
+
+        GameScene.getCurrentScene().userSystem.NPC_1.addEventListener(engine.TouchEventsType.TOUCH_TAP, (e) => {
+            UserSystem.currentNPC = GameScene.getCurrentScene().userSystem.NPC_1;
+            list.addCommand(new WalkCommand(e.stageX, e.stageY));
+            list.addCommand(new TalkCommand());
+            list.execute();
+        }, this);
+
+        GameScene.getCurrentScene().userSystem.monster.addEventListener(engine.TouchEventsType.TOUCH_TAP, (e) => {
+            list.addCommand(new WalkCommand(e.stageX, e.stageY));
+            list.addCommand(new FightCommand());
+            list.execute();
+        }, this);
+
+           GameScene.getCurrentScene().userSystem.equipmentButton.addEventListener(engine.TouchEventsType.TOUCH_TAP, (e) => {
+            list.addCommand(new WalkCommand(e.stageX, e.stageY));
+            list.addCommand(new EquipmentCommand());
+            list.execute();
+        }, this);
+
+        /*var button = new Button(100, 100, "add");
+        button.addEventListener(engine.TouchEventsType.TOUCH_TAP, (e) => {
+            console.log("add");
+            GameScene.getCurrentScene().userSystem.user.defaultHero.addEquipment(new Equipment("C", 100, 100, 100));
+            GameScene.getCurrentScene().userSystem.userPanel.updateUserinfo();
+        }, this);
+        this.addChild(button);
+
+        list.addCommand(new WalkCommand(1, 1));
+        list.addCommand(new FightCommand());
+        list.addCommand(new WalkCommand(3, 3));
+        list.addCommand(new TalkCommand());
+        list.addCommand(new WalkCommand(5, 5));*/
+
+
+        /*egret.setTimeout(function () {
+            list.cancel();
+            list.addCommand(new WalkCommand(5, 5))
+            list.execute();
+
+        }, this, 600)*//*
+    }
+
+
+    private createBitmapByName(name: string): egret.Bitmap {
+        var result = new egret.Bitmap();
+        var texture: egret.Texture = RES.getRes(name);
+        result.texture = texture;
+        return result;
+    }
+}
 
 */

@@ -20,6 +20,10 @@ namespace engine {
 
         isMouseDown = false;
         touchListeners: TouchEvents[] = [];
+        touchEnabled = false;
+
+        width = -1;
+        height = -1;
 
         draw(context2D: CanvasRenderingContext2D) {
             this.localMatrix.updateFromDisplayObject(this.x, this.y, this.scaleX, this.scaleY, this.rotation);
@@ -66,7 +70,13 @@ namespace engine {
             }
         }
 
-        abstract hitTest(x: number, y: number)
+        hitTest(x: number, y: number) {
+            if (this.touchEnabled) {
+                this.singleHitTest(x, y);
+            }
+        }
+
+        abstract singleHitTest(x: number, y: number)
     }
 
     export class DisplayObjectContainer extends DisplayObject {
@@ -96,7 +106,7 @@ namespace engine {
             }
         }
 
-        hitTest(x: number, y: number) {
+        singleHitTest(x: number, y: number) {
             for (let i = this.children.length - 1; i >= 0; i--) {
                 var child = this.children[i];
                 var pointBaseOnChild = pointAppendMatrix(new Point(x, y), invertMatrix(child.globalMatrix));
@@ -110,15 +120,43 @@ namespace engine {
 
     }
 
+    export class Shape extends DisplayObject {
+        width = 0;
+        height = 0;
+        color = "000000";
+        constructor() {
+            super();
+        }
+
+        singleHitTest(x: number, y: number) {
+            let rect = new Rectangle();
+            rect.x = rect.y = 0;
+            rect.width = this.width;
+            rect.height = this.height;
+            if (rect.isPointInReactangle(new Point(x, y))) {
+                return this;
+            }
+            return null;
+        }
+
+        render(context2D: CanvasRenderingContext2D) {
+            context2D.fillStyle = this.color.toLocaleUpperCase();
+            context2D.fillRect(this.x, this.y, this.width, this.height);
+        }
+    }
+
     export class Bitmap extends DisplayObject {
         width: number = -1;
         height: number = -1;
         name: string = "";
         private image: HTMLImageElement = null;
         private isLoaded = false;
-        constructor() {
+        constructor(path?: any) {
             super();
             this.image = document.createElement("img");
+            if (path) {
+                this.name = path;
+            }
         }
         render(context2D: CanvasRenderingContext2D) {
             if (this.isLoaded) {
@@ -133,7 +171,7 @@ namespace engine {
         }
 
 
-        hitTest(x: number, y: number) {
+        singleHitTest(x: number, y: number) {
             console.log("bitmap");
             let rect = new Rectangle();
             rect.x = rect.y = 0;
@@ -161,7 +199,7 @@ namespace engine {
             context2D.font = this.textSize.toString() + "pt " + this.textFont;
             context2D.fillText(this.text, 0, 0);
         }
-        hitTest(x: number, y: number) {
+        singleHitTest(x: number, y: number) {
             var rect = new Rectangle();
             var point = new Point(x, y);
             rect.x = 0;

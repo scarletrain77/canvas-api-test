@@ -5,6 +5,61 @@ namespace engine {
 
         stage.draw(context2D);
 
+        var curTarget;
+        var staTarget;
+        var isMouseDown = false;
+        var staPoint = new Point(0, 0);
+        var movingPoint = new Point(0, 0);
+        var container = new DisplayObjectContainer();
+
+        window.onmousedown = (e) => {
+            let x = e.offsetX;
+            let y = e.offsetY;
+            TouchEventService.stageX = x;
+            TouchEventService.stageY = y;
+            staPoint.x = x;
+            staPoint.y = y;
+            movingPoint.x = x;
+            movingPoint.y = y;
+            TouchEventService.currentType = TouchEventsType.MOUSEDOWN;
+            curTarget = stage.hitTest(x, y);
+            staTarget = curTarget;
+            TouchEventService.getInstance().toDo();
+            isMouseDown = true;
+        }
+
+        window.onmouseup = (e) => {
+            let x = e.offsetX;
+            let y = e.offsetY;
+            TouchEventService.stageX = x;
+            TouchEventService.stageY = y;
+            var target = stage.hitTest(x, y);
+            if (target == curTarget) {
+                TouchEventService.currentType = TouchEventsType.CLICK;
+            }
+            else {
+                TouchEventService.currentType = TouchEventsType.MOUSEUP
+            }
+            TouchEventService.getInstance().toDo();
+            curTarget = null;
+            isMouseDown = false;
+        }
+
+        window.onmousemove = (e) => {
+            if (isMouseDown) {
+                let x = e.offsetX;
+                let y = e.offsetY;
+                TouchEventService.stageX = x;
+                TouchEventService.stageY = y;
+                TouchEventService.currentType = TouchEventsType.MOUSEMOVE;
+                curTarget = stage.hitTest(x, y);
+                TouchEventService.getInstance().toDo();
+                movingPoint.x = x;
+                movingPoint.y = y;
+            }
+        }
+
+
         let lastNow = Date.now();
         let frameHandler = () => {
             let now = Date.now();
@@ -17,7 +72,7 @@ namespace engine {
             lastNow = now;
             window.requestAnimationFrame(frameHandler);
         }
-        
+
         return stage;
     }
 }
