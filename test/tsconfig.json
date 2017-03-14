@@ -2,12 +2,13 @@
     "compilerOptions": {
         "target": "es5",
         "module": "commonjs",
-        //"watch": true,
-        //"sourceMap": true,
+        "watch": true,
+        "sourceMap": true,
         "outDir": "./out"
     },
     "include": [
         "./src/*.ts",
         "../engine/out/*.d.ts"
     ]
+  
 }
