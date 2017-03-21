@@ -49,9 +49,9 @@ class FightCommand implements Command {
     cancel(callback: Function) {
         console.log("脱离战斗")
         this._hasBeenCancelled = true;
-        egret.setTimeout(function () {
+        engine.setTimeout(function () {
             callback();
-        }, this, 100)
+        }, 100)
 
     }
 }
@@ -108,12 +108,12 @@ class CommandList {
     cancel() {
         this._frozen = true;
         var command = this.currentCommand;
-        egret.setTimeout(() => {
+        engine.setTimeout(() => {
             if (this._frozen) {
                 this._frozen = false;
             }
 
-        }, this, 2000);
+        }, 2000);
         if (command) {
             command.cancel(() => {
                 this._frozen = false;
@@ -125,7 +125,7 @@ class CommandList {
 
     execute() {
         if (this._frozen) {
-            egret.setTimeout(this.execute, this, 100);
+            engine.setTimeout(this.execute, 100);
             return;
         }
 

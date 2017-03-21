@@ -1,4 +1,4 @@
-class GameScene extends egret.DisplayObjectContainer {
+class GameScene extends engine.DisplayObjectContainer {
     private static _scene: GameScene;
     private _userSystem: UserSystem;
     //private _taskSystem: TaskSystem;
@@ -24,10 +24,10 @@ class GameScene extends egret.DisplayObjectContainer {
     public moveTo(x: number, y: number, callback: Function) {
         console.log("开始移动")
         this._userSystem.tileMap.moveTo(x, y);
-        egret.setTimeout(function () {
+        engine.setTimeout(function () {
             console.log("结束移动")
             callback();
-        }, this, 1000)
+        }, 1000)
     }
 
     public stopMove(callback: Function) {
@@ -38,28 +38,28 @@ class GameScene extends egret.DisplayObjectContainer {
     public beginTalk(callback: Function) {
         console.log("开始谈话")
         UserSystem.currentNPC.onClick();
-        egret.setTimeout(function () {
+        engine.setTimeout(function () {
             console.log("结束谈话")
             callback();
-        }, this, 1000)
+        }, 1000)
     }
 
     public fight(callback: Function) {
         console.log("开始攻击")
         this._userSystem.monster.onClick();
-        egret.setTimeout(function () {
+        engine.setTimeout(function () {
             console.log("结束攻击")
             callback();
-        }, this, 1000)
+        }, 1000)
     }
 
     public getEquipment(callback: Function) {
         console.log("开始拾取")
         this._userSystem.equipmentButton.onClick();
-        egret.setTimeout(function () {
+        engine.setTimeout(function () {
             console.log("结束拾取")
             callback();
-        }, this, 1000)
+        }, 1000)
     }
 
 

@@ -1,117 +1,196 @@
 namespace engine {
-    export interface Drawable {
-        draw(context2D: CanvasRenderingContext2D);
+
+
+    export type MovieClipData = {
+        name: string,
+        frames: MovieClipFrameData[]
     }
 
-    export abstract class DisplayObject implements Drawable {
-        x: number = 0;
-        y: number = 0;
-        scaleX: number = 1;
-        scaleY: number = 1;
-        rotation: number = 0;
+    export type MovieClipFrameData = {
+        "image": string
+    }
 
-        alpha: number = 1;
-        globalAlpha: number = 1;
 
+    export interface Drawable {
+        update();
+    }
+
+    export abstract class DisplayObject {
+        type = "DisplayObject";
+
+        x = 0;
+        y = 0;
+        scaleX = 1;
+        scaleY = 1;
+        rotation = 0;
+
+        alpha = 1;
+        globalAlpha = 1;
+
+        localMatrix: Matrix;
+        globalMatrix: Matrix;
         parent: DisplayObjectContainer;
 
-        globalMatrix: Matrix = loadIdentityMatrix();
-        localMatrix: Matrix = loadIdentityMatrix();
-
-        isMouseDown = false;
-        touchListeners: TouchEvents[] = [];
+        eventArray: TouchEvents[] = [];
         touchEnabled = false;
 
-        width = -1;
-        height = -1;
+        constructor(type: string) {
+            this.type = type;
+            this.localMatrix = new Matrix();
+            this.globalMatrix = new Matrix();
+        }
 
-        draw(context2D: CanvasRenderingContext2D) {
+        // 模板方法模式        
+        update() {
             this.localMatrix.updateFromDisplayObject(this.x, this.y, this.scaleX, this.scaleY, this.rotation);
             if (this.parent) {
-                this.globalAlpha = this.parent.globalAlpha * this.alpha;
                 this.globalMatrix = matrixAppendMatrix(this.localMatrix, this.parent.globalMatrix);
-            } else {
-                this.globalAlpha = this.alpha;
+            }
+            else {
                 this.globalMatrix = this.localMatrix;
             }
-
-            context2D.globalAlpha = this.globalAlpha;
-            this.globalMatrix.displayObjectSetTransform(context2D);
-            this.render(context2D);
+            if (this.parent) {
+                this.globalAlpha = this.parent.globalAlpha * this.alpha;
+            }
+            else {
+                this.globalAlpha = this.alpha;
+            }
         }
 
-        render(context2D: CanvasRenderingContext2D) {
-
+        addEventListener(eventType: TouchEventsType, func: Function, target: DisplayObject, capture: boolean) {
+            if (this.touchEnabled == true) {
+                let e = new TouchEvents(eventType, func, target, capture);
+                this.eventArray.push(e);
+            }
         }
 
-        moveTo(x: number, y: number) {
-            var tempMatrix = new Matrix(1, 0, 0, 1, x - this.x, y - this.y);
-            this.globalMatrix = matrixAppendMatrix(this.globalMatrix, tempMatrix);
-        }
+        abstract hitTest(x: number, y: number): DisplayObject;
+    }
 
-        addEventListener(type: TouchEventsType, touchListener: Function, obj: any, capture?: boolean, priority?: number) {
-            var event = new TouchEvents(type, touchListener, obj, capture, priority);
-            this.touchListeners.push(event);
-        }
 
-        dispatchEvent(e: any) {
-            console.log(e.type);
-            if (e.type == "mousedown") {
-                this.isMouseDown = true;
-            } else if (e.type == "mouseup" && this.isMouseDown == true) {//other types unfinish
-                for (let i = 0; i < this.touchListeners.length; i++) {
-                    if (this.touchListeners[i].type == TouchEventsType.CLICK) {
-                        this.touchListeners[i].func();
-                    }
-                }
-                this.isMouseDown = false;
-            } else if (e.type == "mousemove") {
-
+    export class Bitmap extends DisplayObject {
+        image: HTMLImageElement;
+        width = -1;
+        height = -1;
+        constructor(image?: HTMLImageElement) {
+            super("Bitmap");
+            if (image) {
+                this.image = image;
+                this.width = image.width;
+                this.height = image.height;
             }
         }
 
         hitTest(x: number, y: number) {
-            if (this.touchEnabled) {
-                this.singleHitTest(x, y);
+            console.log("Bitmap");
+            let rect = new Rectangle();
+            rect.x = rect.y = 0;
+            rect.width = this.image.width;
+            rect.height = this.image.height;
+            if (rect.isPointInRectangle(new Point(x, y))) {
+                let eventManager = TouchEventService.getInstance();
+                //eventManager.addPerformer(this);
+                 eventManager.performerList.push(this);
+                return this;
+            }
+            else {
+                return null;
             }
         }
+    }
 
-        abstract singleHitTest(x: number, y: number)
+    export class Shape extends DisplayObject {
+        width = 0;
+        height = 0;
+        color = "000000";
+        constructor() {
+            super("Shape");
+        }
+        hitTest(x: number, y: number) {
+            console.log(x, y)
+            console.log("shape");
+            let rect = new Rectangle();
+            rect.x = rect.y = 0;
+            rect.width = this.width;
+            rect.height = this.height;
+            if (rect.isPointInRectangle(new Point(x, y))) {
+                let eventManager = TouchEventService.getInstance();
+//                eventManager.addPerformer(this);
+                 eventManager.performerList.push(this);
+                return this;
+            }
+            else {
+                return null;
+            }
+        }
+    }
+
+
+    var fonts = {
+        "name": "Arial",
+        "font": {
+            "A": [0, 0, 0, 0, 1, 0, 0, 1, 1, 0],
+            "B": []
+        }
+    }
+
+    export class TextField extends DisplayObject {
+
+        text: string = "";
+        textColor: string = "#000000"
+        textSize = 12;
+        textFont = "Calibri";
+        constructor() {
+            super("TextField");
+        }
+
+        hitTest(x: number, y: number) {
+            console.log("text");
+            var rect = new Rectangle();
+            rect.height = 20;
+            var point = new Point(x, y);
+            if (rect.isPointInRectangle(point)) {
+                let eventManager = TouchEventService.getInstance();
+                //eventManager.addPerformer(this);
+                eventManager.performerList.push(this);
+                return this;
+            }
+            else {
+                return null;
+            }
+        }
     }
 
     export class DisplayObjectContainer extends DisplayObject {
         children: DisplayObject[] = [];
+
         constructor() {
-            super();
+            super("DisplayObjectContainer");
         }
-        render(context2D: CanvasRenderingContext2D) {
+
+        update() {
+            super.update();
             for (let drawable of this.children) {
-                drawable.draw(context2D);
-            }
-        }
-        addChild(child: DisplayObject) {
-            if (this.children.indexOf(child) == -1) {
-                child.parent = this;
-                this.children.push(child);
-            }
-        }
-        //拷贝一个数组
-        removeChild(child: DisplayObject) {
-            for (var element of this.children) {
-                if (element == child) {
-                    var index = this.children.indexOf(child);
-                    this.children.splice(index);
-                    return;
-                }
+                drawable.update();
             }
         }
 
-        singleHitTest(x: number, y: number) {
+        addChild(child: DisplayObject) {
+            this.children.push(child);
+            child.parent = this;
+        }
+
+        hitTest(x, y) {
             for (let i = this.children.length - 1; i >= 0; i--) {
-                var child = this.children[i];
-                var pointBaseOnChild = pointAppendMatrix(new Point(x, y), invertMatrix(child.globalMatrix));
-                var hitTestResult = child.hitTest(pointBaseOnChild.x, pointBaseOnChild.y);
+                let child = this.children[i];
+                let point = new Point(x, y);
+                let invertChildLocalMatrix = invertMatrix(child.localMatrix);
+                let pointBaseOnChild = pointAppendMatrix(point, invertChildLocalMatrix);
+                let hitTestResult = child.hitTest(pointBaseOnChild.x, pointBaseOnChild.y);
                 if (hitTestResult) {
+                    let eventManager = TouchEventService.getInstance();
+                    //eventManager.addPerformer(this);
+                     eventManager.performerList.push(this);
                     return hitTestResult;
                 }
             }
@@ -120,95 +199,48 @@ namespace engine {
 
     }
 
-    export class Shape extends DisplayObject {
-        width = 0;
-        height = 0;
-        color = "000000";
-        constructor() {
+
+    export class MovieClip extends Bitmap {
+        private advancedTime: number = 0;
+        private static FRAME_TIME = 20;
+        private static TOTAL_FRAME = 10;
+        private currentFrameIndex: number;
+        private data: MovieClipData;
+
+        constructor(data: MovieClipData) {
             super();
+            this.setMovieClipData(data);
+            this.play();
         }
 
-        singleHitTest(x: number, y: number) {
-            let rect = new Rectangle();
-            rect.x = rect.y = 0;
-            rect.width = this.width;
-            rect.height = this.height;
-            if (rect.isPointInReactangle(new Point(x, y))) {
-                return this;
+        ticker = (deltaTime) => {
+            // this.removeChild();
+            this.advancedTime += deltaTime;
+            if (this.advancedTime >= MovieClip.FRAME_TIME * MovieClip.TOTAL_FRAME) {
+                this.advancedTime -= MovieClip.FRAME_TIME * MovieClip.TOTAL_FRAME;
             }
-            return null;
+            this.currentFrameIndex = Math.floor(this.advancedTime / MovieClip.FRAME_TIME);
+
+            let data = this.data;
+
+            let frameData = data.frames[this.currentFrameIndex];
+            let url = frameData.image;
         }
 
-        render(context2D: CanvasRenderingContext2D) {
-            context2D.fillStyle = this.color.toLocaleUpperCase();
-            context2D.fillRect(this.x, this.y, this.width, this.height);
+        play() {
+            Ticker.getInstance().register(this.ticker);
+        }
+
+        stop() {
+            Ticker.getInstance().unregister(this.ticker)
+        }
+
+        setMovieClipData(data: MovieClipData) {
+            this.data = data;
+            this.currentFrameIndex = 0;
+            // 创建 / 更新 
+
         }
     }
 
-    export class Bitmap extends DisplayObject {
-        width: number = -1;
-        height: number = -1;
-        name: string = "";
-        private image: HTMLImageElement = null;
-        private isLoaded = false;
-        constructor(path?: any) {
-            super();
-            this.image = document.createElement("img");
-            if (path) {
-                this.name = path;
-            }
-        }
-        render(context2D: CanvasRenderingContext2D) {
-            if (this.isLoaded) {
-                context2D.drawImage(this.image, 0, 0);
-            } else {
-                this.image.src = this.name;
-                this.image.onload = () => {
-                    context2D.drawImage(this.image, 0, 0, this.width, this.height);
-                    this.isLoaded = true;
-                }
-            }
-        }
-
-
-        singleHitTest(x: number, y: number) {
-            console.log("bitmap");
-            let rect = new Rectangle();
-            rect.x = rect.y = 0;
-            if (this.height == -1 && this.width == -1) {
-                rect.width = this.image.width;
-                rect.height = this.image.height;
-            } else {
-                rect.width = this.width;
-                rect.height = this.height;
-            }
-            if (rect.isPointInReactangle(new Point(x, y))) {
-                return this;
-            }
-            return null;
-        }
-    }
-
-    export class TextField extends DisplayObject {
-        text: string = "";
-        textColor: string = "#000000"
-        textSize = 12;
-        textFont = "Calibri";
-        render(context2D: CanvasRenderingContext2D) {
-            context2D.fillStyle = this.textColor.toLocaleUpperCase();
-            context2D.font = this.textSize.toString() + "pt " + this.textFont;
-            context2D.fillText(this.text, 0, 0);
-        }
-        singleHitTest(x: number, y: number) {
-            var rect = new Rectangle();
-            var point = new Point(x, y);
-            rect.x = 0;
-            rect.y = 0;
-            rect.width = this.textSize * this.text.length;
-            rect.height = this.textSize;
-            let invertChildLocalMatrix = invertMatrix(this.localMatrix);
-            let pointBaseOnChild = pointAppendMatrix(new Point(x, y), invertChildLocalMatrix);
-            return rect.isPointInReactangle(pointBaseOnChild)
-        }
-    }
 }

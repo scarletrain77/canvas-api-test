@@ -1,15 +1,17 @@
 namespace engine {
     export namespace RES {
+        var RESOURCE_PATH = "././Resources/";
         export function getRes(path: string) {
-            return new Promise(resolve => {
+            let image = document.createElement("img");
+            image.src = RESOURCE_PATH + path;
+            return image;
+           /* return new Promise(function (resolve, reject) {
                 var result = new Image();
-                result.src = "../resource/assets/" + path;
+                result.src = RESOURCE_PATH + path;
                 result.onload = () => {
-                    result.width = result.width;
-                    result.height = result.height;
                     resolve(result);
                 }
-            });
+            });*/
         }
     }
 }

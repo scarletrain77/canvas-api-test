@@ -6,23 +6,50 @@ namespace engine {
         MOUSEMOVE,
         TOUCH_TAP
     }
-    export class TouchEvents {
-        type: TouchEventsType;
-        func: Function;
-        obj: any;
-        capture = false;
-        priority = 0;
 
-        constructor(type: TouchEventsType, func: Function, obj: any, capture?: boolean, priority?: number) {
+    export class TouchEventService {
+        //private _performerList: DisplayObject[] = [];
+        performerList:DisplayObject[] = [];
+        public static instance: TouchEventService;
+        public static getInstance() {
+            if (TouchEventService.instance == null) {
+                TouchEventService.instance = new TouchEventService();
+                //this.performerList = new Array<DisplayObject>();
+                return TouchEventService.instance;
+            } else {
+                return TouchEventService.instance;
+            }
+        }
+
+        /*addPerformer(performer: DisplayObject){
+            this._performerList.push(performer);
+        }
+
+        splicePerformer(staNum: number, endNum: number){
+            this._performerList.splice(staNum, endNum);
+        }*/
+
+        /*get performerList(){
+            return this._performerList;
+        }*/
+    }
+
+    export class TouchEvents {
+        type = TouchEventsType.CLICK;
+        func: Function;
+        target: DisplayObject;
+        capture = false;
+        
+        constructor(type: TouchEventsType, func: Function, target: DisplayObject, capture: boolean) {
             this.type = type;
             this.func = func;
-            this.obj = obj;
+            this.target = target;
             this.capture = capture || false;
-            this.priority = priority || 0;
         }
     }
 
-    export class TouchEventService {
+
+    /*export class TouchEventService {
         private static instance;
         private performerList: DisplayObject[] = [];
         static currentType: TouchEventsType;
@@ -67,6 +94,6 @@ namespace engine {
             }
             this.clearList();
         }
-    }
+    }*/
 }
 

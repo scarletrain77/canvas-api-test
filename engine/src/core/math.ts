@@ -10,16 +10,22 @@ namespace engine {
     }
 
     export class Rectangle {
-        x: number;
-        y: number;
-        width: number;
-        height: number;
-        isPointInReactangle(point: Point) {
-            if (point.x >= this.x && point.x <= (this.x + this.width)
-                && point.y >= this.y && point.y <= (this.y + this.height)) {
+
+        x = 0;
+        y = 0;
+        width = 1;
+        height = 1;
+        isPointInRectangle(point: Point) {
+            let rect = this;
+            if (point.x < rect.width + rect.x &&
+                point.y < rect.height + rect.y &&
+                point.x > rect.x &&
+                point.y > rect.y) {
                 return true;
             }
-            return false;
+            else {
+                return false;
+            }
         }
     }
 
@@ -79,6 +85,7 @@ namespace engine {
     var TwoPI = PI * 2;
     var DEG_TO_RAD: number = Math.PI / 180;
 
+
     export class Matrix {
 
         constructor(a: number = 1, b: number = 0, c: number = 0, d: number = 1, tx: number = 0, ty: number = 0) {
@@ -120,15 +127,5 @@ namespace engine {
             this.d = u * scaleY;
 
         }
-
-        displayObjectSetTransform(context2D: CanvasRenderingContext2D) {
-            context2D.setTransform(this.a, this.b, this.c, this.d, this.tx, this.ty);
-        }
-
     }
-
-    export function loadIdentityMatrix() {
-        return new Matrix(1, 0, 0, 1, 0, 0);
-    }
-
 }
