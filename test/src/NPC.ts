@@ -1,7 +1,8 @@
 class NPC extends engine.DisplayObjectContainer implements Observer {
     private _id: string;
     //private _taskService: TaskService;
-    private _body: NPCBody;
+    //private _body: NPCBody;
+    private _body: engine.Bitmap;
     private _isEmojiQM: boolean;
     private _emoji: engine.Bitmap;
     private _dialog: DialogPanel;
@@ -13,7 +14,8 @@ class NPC extends engine.DisplayObjectContainer implements Observer {
         this.x = x;
         this.y = y;
 
-        this._body = new NPCBody(bitmap, frameAll);
+        //this._body = new NPCBody(bitmap, frameAll);
+        this._body = new engine.Bitmap(engine.RES.getRes(bitmap));
 
         this._dialog = new DialogPanel(dialog);
         this._dialog.x = - this._body.width / 8;
@@ -47,7 +49,7 @@ class NPC extends engine.DisplayObjectContainer implements Observer {
         this.changeEmojiState(task);
     }
 
-    public get body():NPCBody{
+    public get body(){
         return this._body;
     }
 
@@ -112,14 +114,14 @@ class NPC extends engine.DisplayObjectContainer implements Observer {
     }
 
     private emojiFadeIn(): void {
-        var tw: engine.Tween = engine.Tween.get(this._emoji);
+        var tw: engine.Tween = new engine.Tween(this._emoji);
         if (this._emoji.alpha == 0) {
             tw.to({ "alpha": 1 }, 100);
         }
     }
 
     private emojiFadeOut(): void {
-        var tw: engine.Tween = engine.Tween.get(this._emoji);
+        var tw: engine.Tween = new engine.Tween(this._emoji);
         if (this._emoji.alpha == 1) {
             tw.to({ "alpha": 0 }, 100);
         }
@@ -127,9 +129,9 @@ class NPC extends engine.DisplayObjectContainer implements Observer {
 
     private setEmojiTexture(): void {
         if (this._isEmojiQM == true) {
-            this._emoji.name = RES.getRes("questionMark_png");
+            this._emoji.image = engine.RES.getRes("questionMark_png");
         } else {
-            this._emoji.name = RES.getRes("exclamationPoint_png");
+            this._emoji.image = engine.RES.getRes("exclamationPoint_png");
         }
     }
 

@@ -21,10 +21,10 @@ class PictureMiddle {
 
 class BitmapBody extends engine.DisplayObjectContainer {
     private _body: engine.Bitmap;
-    constructor(name: string, width: number, height: number, targetX: number, targetY: number, targetAlpha: number) {
+    constructor(name: string, width?: number, height?: number, targetX?: number, targetY?: number, targetAlpha?: number) {
         super();
         this._body = new engine.Bitmap();
-        this._body.name = RES.getRes(name);
+        this._body.image = engine.RES.getRes(name);
         if (width != 0 && height != 0) {
             this._body.width = width;
             this._body.height = height;

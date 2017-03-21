@@ -20,10 +20,6 @@ namespace engine {
 
         window.requestAnimationFrame(frameHandler);
 
-        window.onmousedown = () => {
-            // stage.hitTest(100, 100);
-        }
-
         let hitResult: DisplayObject;
         let currentX: number;
         let currentY: number;
@@ -34,8 +30,7 @@ namespace engine {
         window.onmousedown = (e) => {
             isMouseDown = true;
             let targetArray = TouchEventService.getInstance().performerList;
-           // TouchEventService.getInstance().splicePerformer(0, TouchEventService.getInstance().performerList.length);
-            targetArray.splice(0, targetArray.length);
+            TouchEventService.getInstance().splicePerformer(0, TouchEventService.getInstance().performerList.length);
             hitResult = stage.hitTest(e.offsetX, e.offsetY);
             currentX = e.offsetX;
             currentY = e.offsetY;
@@ -66,20 +61,20 @@ namespace engine {
         }
         window.onmouseup = (e) => {
             isMouseDown = false;
-            let targetArray = TouchEventService.getInstance().performerList;
-            targetArray.splice(0, targetArray.length);
+            let performerList = TouchEventService.getInstance().performerList;
+            performerList.splice(0, performerList.length);
             let newHitRusult = stage.hitTest(e.offsetX, e.offsetY);
-            for (let i = 0; i < targetArray.length; i++) {
-                for (let x of targetArray[i].eventArray) {
+            for (let i = 0; i < performerList.length; i++) {
+                for (let x of performerList[i].eventArray) {
                     if (x.type == TouchEventsType.CLICK && newHitRusult == hitResult && x.capture == true) {
                         x.func(e);
                     }
                 }
             }
-            for (let i = targetArray.length - 1; i >= 0; i--) {
-                for (let x of targetArray[i].eventArray) {
+            for (let i = performerList.length - 1; i >= 0; i--) {
+                for (let x of performerList[i].eventArray) {
                     if (x.type == TouchEventsType.CLICK && newHitRusult == hitResult && x.capture == false) {
-                        x.func(e, );
+                        x.func(e);
                     }
                 }
             }

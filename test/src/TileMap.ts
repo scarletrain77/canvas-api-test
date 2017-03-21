@@ -87,8 +87,8 @@ class TileMap extends engine.DisplayObjectContainer {
         if (astar.findPath(grid)) {
             //var alphax = 1;
             for (var i = 0; i < astar.path.length; i++) {
-                var targetX: number = astar.path[i].x * Tile.TILE_SIZE + Tile.TILE_SIZE / 2 - Body.RUN_BODY_W / 2;
-                var targetY: number = astar.path[i].y * Tile.TILE_SIZE + Tile.TILE_SIZE / 2 - Body.RUN_BODY_H / 2;
+                var targetX: number = astar.path[i].x * Tile.TILE_SIZE + Tile.TILE_SIZE / 2 ;
+                var targetY: number = astar.path[i].y * Tile.TILE_SIZE + Tile.TILE_SIZE / 2;
                 this._moveX[i] = targetX;
                 this._moveY[i] = targetY;
             }
@@ -110,7 +110,7 @@ class Tile extends engine.DisplayObjectContainer {
         this.data = data;
         var bitmap = new engine.Bitmap();
         this.addChild(bitmap);
-        bitmap.name = RES.getRes(data.image);
+        bitmap.image = engine.RES.getRes(data.image);
         bitmap.height = Tile.TILE_SIZE;
         bitmap.width = Tile.TILE_SIZE;
         bitmap.x = data.x * Tile.TILE_SIZE;

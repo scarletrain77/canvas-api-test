@@ -2,7 +2,7 @@
 class Player extends engine.DisplayObjectContainer {
     private _name: string;
     private _modeText: engine.TextField;
-    private _body: Body;
+    private _body: engine.Bitmap;
     private _stateMachine: StateMachine;
     public mode: string;
 
@@ -11,14 +11,15 @@ class Player extends engine.DisplayObjectContainer {
 
         this._name = name;
 
-        this._body = new Body(name, "Idle", 8, 8, 8);
+        this._body = new engine.Bitmap(engine.RES.getRes(name + "Idle"));
+
         this._modeText = new engine.TextField();
         this._stateMachine = new StateMachine();
 
         this._modeText.y = 30;
         this._modeText.text = "Now is playing";
 
-        this.mode = this._body.mode;
+        //this.mode = this._body.mode;
 
         this.addChild(this._body);
         this.addChild(this._modeText);
@@ -41,8 +42,12 @@ class Player extends engine.DisplayObjectContainer {
         return this._modeText;
     }
 
-    public get body(): Body {
+    public get body(){
         return this._body;
+    }
+
+    public get name(){
+        return this._name;
     }
 }
 
@@ -91,9 +96,9 @@ class PlayerMoveState extends PlayerState {
     }
     onEnter() {
         this._player.modeText.text = "Move";
-        this._player.body.reset();
-        this._player.body.mode = "Run";
-        var tw = engine.Tween.get(this._player.body);
+        //this._player.body.reset();
+        this._player.body.image.src = this._player.name + "Run";
+        var tw = new engine.Tween(this._player.body);
         for (var i = 0; i < this._targetX.length; i++) {
             if (i == this._targetX.length - 1) {
                 tw.to({ x: this._targetX[i], y: this._targetY[i] }, 100).call(this._player.idle, this._player);
@@ -115,16 +120,18 @@ class PlayerIdleState extends PlayerState {
     onEnter() {
         //this._player._body.gotoAndPlay("idle");
         // var body = new Body("Idle");
-        this._player.body.reset();
-        this._player.body.mode = "Idle";
+        //this._player.body.reset();
+        //this._player.body.mode = "Idle";
+        this._player.body.image.src = this._player.name + "Idle";
         this._player.modeText.text = "Now is idling";
     }
 }
 
 class PlayerAttackState extends PlayerState {
     onEnter() {
-        this._player.body.reset();
-        this._player.body.mode = "Attack";
+        //this._player.body.reset();
+        //this._player.body.mode = "Attack";
+         this._player.body.image.src = this._player.name + "Attack";
         this._player.modeText.text = "Attacking";
     }
 }

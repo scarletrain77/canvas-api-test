@@ -57,7 +57,7 @@ namespace engine {
             }
         }
 
-        addEventListener(eventType: TouchEventsType, func: Function, target: DisplayObject, capture: boolean) {
+        addEventListener(eventType: TouchEventsType, func: Function, target: DisplayObject, capture?: boolean) {
             if (this.touchEnabled == true) {
                 let e = new TouchEvents(eventType, func, target, capture);
                 this.eventArray.push(e);
@@ -88,9 +88,9 @@ namespace engine {
             rect.width = this.image.width;
             rect.height = this.image.height;
             if (rect.isPointInRectangle(new Point(x, y))) {
-                let eventManager = TouchEventService.getInstance();
-                //eventManager.addPerformer(this);
-                 eventManager.performerList.push(this);
+                let instance = TouchEventService.getInstance();
+                instance.addPerformer(this);
+                // instance.performerList.push(this);
                 return this;
             }
             else {
@@ -114,9 +114,9 @@ namespace engine {
             rect.width = this.width;
             rect.height = this.height;
             if (rect.isPointInRectangle(new Point(x, y))) {
-                let eventManager = TouchEventService.getInstance();
-//                eventManager.addPerformer(this);
-                 eventManager.performerList.push(this);
+                let instance = TouchEventService.getInstance();
+                instance.addPerformer(this);
+                // instance.performerList.push(this);
                 return this;
             }
             else {
@@ -150,9 +150,9 @@ namespace engine {
             rect.height = 20;
             var point = new Point(x, y);
             if (rect.isPointInRectangle(point)) {
-                let eventManager = TouchEventService.getInstance();
-                //eventManager.addPerformer(this);
-                eventManager.performerList.push(this);
+                let instance = TouchEventService.getInstance();
+                instance.addPerformer(this);
+                //instance.performerList.push(this);
                 return this;
             }
             else {
@@ -188,9 +188,9 @@ namespace engine {
                 let pointBaseOnChild = pointAppendMatrix(point, invertChildLocalMatrix);
                 let hitTestResult = child.hitTest(pointBaseOnChild.x, pointBaseOnChild.y);
                 if (hitTestResult) {
-                    let eventManager = TouchEventService.getInstance();
-                    //eventManager.addPerformer(this);
-                     eventManager.performerList.push(this);
+                    let instance = TouchEventService.getInstance();
+                    instance.addPerformer(this);
+                    // instance.performerList.push(this);
                     return hitTestResult;
                 }
             }

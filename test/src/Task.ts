@@ -167,7 +167,7 @@ class EquipmentsGetTaskButton extends engine.DisplayObjectContainer implements O
         super();
 
         this._jewelBitmap = new engine.Bitmap();
-        this._jewelBitmap.name = RES.getRes("jewel_png");
+        this._jewelBitmap.image = engine.RES.getRes("jewel_png");
         this._jewelBitmap.x = x;
         this._jewelBitmap.y = y;
 

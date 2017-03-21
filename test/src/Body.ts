@@ -1,4 +1,4 @@
-class NPCBody extends engine.DisplayObjectContainer {
+/*class NPCBody extends engine.DisplayObjectContainer {
     public static BODY_H: number;
     public static BODY_W: number;
     private _playerArray: engine.Bitmap[] = [];
@@ -93,25 +93,6 @@ class Body extends engine.DisplayObjectContainer {
             this._attackArray.push(new engine.Bitmap(RES.getRes(name + "attack" + "0" + i + "_png")));
         }
 
-        /*var player01: egret.Bitmap = new egret.Bitmap(RES.getRes(name + "idle01_png"));
-        var player02: egret.Bitmap = new egret.Bitmap(RES.getRes(name + "idle02_png"));
-        var player03: egret.Bitmap = new egret.Bitmap(RES.getRes(name + "idle03_png"));
-        var player04: egret.Bitmap = new egret.Bitmap(RES.getRes(name + "idle04_png"));
-        var player05: egret.Bitmap = new egret.Bitmap(RES.getRes(name + "idle05_png"));
-        var player06: egret.Bitmap = new egret.Bitmap(RES.getRes(name + "idle06_png"));
-        var player07: egret.Bitmap = new egret.Bitmap(RES.getRes(name + "idle07_png"));
-        var player08: egret.Bitmap = new egret.Bitmap(RES.getRes(name + "idle08_png"));
-        var player09: egret.Bitmap = new egret.Bitmap(RES.getRes(name + "run01_png"));
-        var player10: egret.Bitmap = new egret.Bitmap(RES.getRes(name + "run02_png"));
-        var player11: egret.Bitmap = new egret.Bitmap(RES.getRes(name + "run03_png"));
-        var player12: egret.Bitmap = new egret.Bitmap(RES.getRes(name + "run04_png"));
-        var player13: egret.Bitmap = new egret.Bitmap(RES.getRes(name + "run05_png"));
-        var player14: egret.Bitmap = new egret.Bitmap(RES.getRes(name + "run06_png"));
-        var player15: egret.Bitmap = new egret.Bitmap(RES.getRes(name + "run07_png"));
-        var player16: egret.Bitmap = new egret.Bitmap(RES.getRes(name + "run08_png"));
-        this.idleArray = [player01, player02, player03, player04, player05, player06, player07, player08];
-        this.runArray = [player09, player10, player11, player12, player13, player14, player15, player16];*/
-
         this.mode = mode;
         Body.RUN_BODY_W = this._idleArray[0].width;
         Body.RUN_BODY_H = this._idleArray[0].height;
@@ -194,4 +175,4 @@ class Body extends engine.DisplayObjectContainer {
             this._timeOnEnterFrame = engine.getTimer();
         }
     }
-}
+}*/

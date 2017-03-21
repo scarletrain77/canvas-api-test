@@ -11,6 +11,7 @@
 		"src/core/ticker.ts",
 		"src/core/displaylist.ts",
 		"src/core/touchevent.ts",
+		"src/core/tween.ts",
 		"src/platforms/browser/driver.ts"
 	]
 }

@@ -23,14 +23,14 @@ class UserPanel extends engine.DisplayObjectContainer {
         this._user = user;
 
         this._heroBody = new engine.Bitmap();
-        this._heroBody.name = RES.getRes(this._user.defaultHero.name + "_png");
+        this._heroBody.image = engine.RES.getRes(this._user.defaultHero.name + "_png");
         this._heroBody.width = 500;
         this._heroBody.height = 500;
         PictureMiddle.putPictureMiddle(this._heroBody);
         this._heroBody.alpha = 0;
 
         this._jewelButton = new engine.Bitmap();
-        this._jewelButton.name = RES.getRes("jewel_png");
+        this._jewelButton.image = engine.RES.getRes("jewel_png");
         this._jewelButton.x = this._heroBody.x + this._heroBody.width - 20;
         this._jewelButton.y = this._heroBody.y;
         this._jewelButton.width = 50;
@@ -38,7 +38,7 @@ class UserPanel extends engine.DisplayObjectContainer {
         this._jewelButton.alpha = 0;
 
         this._equipmentButton = new engine.Bitmap();
-        this._equipmentButton.name = RES.getRes("equipment_png");
+        this._equipmentButton.image = engine.RES.getRes("equipment_png");
         this._equipmentButton.x = this._jewelButton.x;
         this._equipmentButton.y = this._jewelButton.y + this._jewelButton.height + 5;
         this._equipmentButton.width = 50;
